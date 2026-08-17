@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Semesters\RelationManagers;
 
+use App\Models\Subject;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -27,7 +28,17 @@ class GeneralCurriculumRelationManager extends RelationManager
         return $schema->components([
             Select::make('subject_id')
                 ->label('المادة')
-                ->relationship('subject', 'name_ar', fn ($q) => $q->where('is_active', true))
+                ->options(fn () => Subject::query()
+                    ->where('is_active', true)
+                    ->orderBy('name_ar')
+                    ->pluck('name_ar', 'id'))
+                ->getSearchResultsUsing(fn (string $search) => Subject::query()
+                    ->where('is_active', true)
+                    ->where('name_ar', 'like', "%{$search}%")
+                    ->orderBy('name_ar')
+                    ->limit(50)
+                    ->pluck('name_ar', 'id'))
+                ->getOptionLabelUsing(fn ($value): ?string => Subject::query()->find($value)?->name_ar)
                 ->required()
                 ->searchable()
                 ->preload()
@@ -35,7 +46,10 @@ class GeneralCurriculumRelationManager extends RelationManager
                     TextInput::make('name_ar')->label('اسم المادة (عربي)')->required(),
                     TextInput::make('slug')->label('الرابط')->required(),
                     Toggle::make('is_active')->label('نشط')->default(true),
-                ]),
+                ])
+                ->createOptionUsing(function (array $data): int {
+                    return Subject::query()->create($data)->getKey();
+                }),
             TextInput::make('sort_order')->label('الترتيب')->numeric()->default(0)->required(),
             Toggle::make('is_required')->label('مادة إلزامية')->default(true),
             Toggle::make('is_active')->label('نشط')->default(true),
@@ -55,19 +69,18 @@ class GeneralCurriculumRelationManager extends RelationManager
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
             ->headerActions([
-                CreateAction::make()->label('إضافة مادة'),
+                CreateAction::make()
+                    ->label('إضافة مادة')
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['semester_id'] = $this->getOwnerRecord()->getKey();
+                        $data['specialization_id'] = null;
+
+                        return $data;
+                    }),
             ])
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
             ]);
-    }
-
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        $data['semester_id'] = $this->getOwnerRecord()->getKey();
-        $data['specialization_id'] = null;
-
-        return $data;
     }
 }
