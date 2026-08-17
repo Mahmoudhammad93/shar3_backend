@@ -19,7 +19,7 @@ class SemestersTable
                 TextColumn::make('year.name_ar')->label('السنة')->sortable(),
                 TextColumn::make('name_ar')->label('الفصل')->searchable(),
                 TextColumn::make('semester_number')->label('الرقم')->sortable(),
-                TextColumn::make('subjects_count')->label('المواد')->counts('subjects'),
+                TextColumn::make('curriculum_assignments_count')->label('المواد')->counts('curriculumAssignments'),
                 IconColumn::make('is_active')->label('نشط')->boolean(),
             ])
             ->defaultSort('sort_order')
