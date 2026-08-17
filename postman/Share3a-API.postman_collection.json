@@ -1,0 +1,718 @@
+{
+	"info": {
+		"_postman_id": "share3a-api-v1",
+		"name": "Share3a API",
+		"description": "Share3a backend REST API (Laravel Sanctum).\n\nBase URL: `{{base_url}}/api/v1`\n\n1. Run **Auth → Login** or **Register** to save the bearer token automatically.\n2. Protected routes use the `token` collection variable.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "course_slug",
+			"value": "example-course"
+		},
+		{
+			"key": "program_slug",
+			"value": "example-program"
+		},
+		{
+			"key": "teacher_slug",
+			"value": "example-teacher"
+		},
+		{
+			"key": "announcement_slug",
+			"value": "example-announcement"
+		},
+		{
+			"key": "course_id",
+			"value": "1"
+		},
+		{
+			"key": "lesson_id",
+			"value": "1"
+		},
+		{
+			"key": "assignment_id",
+			"value": "1"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Public",
+			"auth": {
+				"type": "noauth"
+			},
+			"item": [
+				{
+					"name": "Home",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/home",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "home"]
+						},
+						"description": "Homepage payload: settings, hero slides, featured courses, programs, teachers, testimonials, announcements, FAQs, and stats."
+					}
+				},
+				{
+					"name": "Settings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/settings",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "settings"]
+						},
+						"description": "Site settings (contact info, social links, etc.)."
+					}
+				},
+				{
+					"name": "Courses",
+					"item": [
+						{
+							"name": "List Courses",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/courses?category=&program=&search=&page=1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "v1", "courses"],
+									"query": [
+										{
+											"key": "category",
+											"value": "",
+											"description": "Filter by category slug"
+										},
+										{
+											"key": "program",
+											"value": "",
+											"description": "Filter by program slug"
+										},
+										{
+											"key": "search",
+											"value": "",
+											"description": "Search in title_ar / title_en"
+										},
+										{
+											"key": "page",
+											"value": "1",
+											"description": "Pagination (12 per page)"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Get Course",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/courses/{{course_slug}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "v1", "courses", "{{course_slug}}"]
+								},
+								"description": "Get a published course by slug (includes lessons)."
+							}
+						}
+					]
+				},
+				{
+					"name": "Programs",
+					"item": [
+						{
+							"name": "List Programs",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/programs",
+									"host": ["{{base_url}}"],
+									"path": ["api", "v1", "programs"]
+								}
+							}
+						},
+						{
+							"name": "Get Program",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/programs/{{program_slug}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "v1", "programs", "{{program_slug}}"]
+								},
+								"description": "Get an active program by slug (includes published courses)."
+							}
+						}
+					]
+				},
+				{
+					"name": "Teachers",
+					"item": [
+						{
+							"name": "List Teachers",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/teachers",
+									"host": ["{{base_url}}"],
+									"path": ["api", "v1", "teachers"]
+								}
+							}
+						},
+						{
+							"name": "Get Teacher",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/teachers/{{teacher_slug}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "v1", "teachers", "{{teacher_slug}}"]
+								},
+								"description": "Get an active teacher by slug (includes published courses)."
+							}
+						}
+					]
+				},
+				{
+					"name": "Announcements",
+					"item": [
+						{
+							"name": "List Announcements",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/announcements?page=1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "v1", "announcements"],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"description": "Pagination (9 per page)"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Get Announcement",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/announcements/{{announcement_slug}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "v1", "announcements", "{{announcement_slug}}"]
+								},
+								"description": "Get a published announcement by slug."
+							}
+						}
+					]
+				},
+				{
+					"name": "FAQs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/faqs",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "faqs"]
+						}
+					}
+				},
+				{
+					"name": "Contact",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"أحمد محمد\",\n  \"email\": \"ahmed@example.com\",\n  \"phone\": \"+966500000000\",\n  \"subject\": \"استفسار عن الدورات\",\n  \"message\": \"أرغب في معرفة المزيد عن دوراتكم.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/contact",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "contact"]
+						},
+						"description": "Submit a contact message.\n\nRequired: name, email, message.\nOptional: phone, subject."
+					}
+				},
+				{
+					"name": "Enrollment (Guest)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"أحمد محمد\",\n  \"email\": \"student@example.com\",\n  \"phone\": \"+966500000000\",\n  \"course_id\": 1,\n  \"notes\": \"أرغب في التسجيل في هذه الدورة\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/enrollments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "enrollments"]
+						},
+						"description": "Public enrollment request (no auth). Creates or updates student and sets enrollment status to pending.\n\nRequired: name, email, course_id.\nOptional: phone, notes."
+					}
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const json = pm.response.json();",
+									"    if (json.token) {",
+									"        pm.collectionVariables.set('token', json.token);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"أحمد محمد\",\n  \"email\": \"student@example.com\",\n  \"phone\": \"+966500000000\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "register"]
+						},
+						"description": "Register a new student account.\n\nRequired: name, email, password, password_confirmation.\nOptional: phone.\n\nReturns token and user on success (201)."
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const json = pm.response.json();",
+									"    if (json.token) {",
+									"        pm.collectionVariables.set('token', json.token);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "login"]
+						},
+						"description": "Login with email and password. Saves bearer token to collection variable on success."
+					}
+				},
+				{
+					"name": "Me",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "me"]
+						},
+						"description": "Get authenticated user profile. Requires Bearer token."
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "logout"]
+						},
+						"description": "Revoke current access token. Requires Bearer token."
+					}
+				}
+			]
+		},
+		{
+			"name": "Student Portal",
+			"description": "Authenticated student endpoints. Run Login or Register first.",
+			"item": [
+				{
+					"name": "Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "dashboard"]
+						},
+						"description": "Student dashboard stats and recent courses."
+					}
+				},
+				{
+					"name": "My Courses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/courses",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "courses"]
+						},
+						"description": "List enrolled courses with progress."
+					}
+				},
+				{
+					"name": "Enroll in Course",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"course_id\": 1,\n  \"notes\": \"أرغب في الانضمام لهذه الدورة\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/enrollments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "enrollments"]
+						},
+						"description": "Enroll authenticated student in a published course.\n\nRequired: course_id.\nOptional: notes."
+					}
+				},
+				{
+					"name": "Course Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/courses/{{course_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "courses", "{{course_id}}"]
+						},
+						"description": "Course detail with lessons and progress. Requires approved/completed enrollment."
+					}
+				},
+				{
+					"name": "Complete Lesson",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/lessons/{{lesson_id}}/complete",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "lessons", "{{lesson_id}}", "complete"]
+						},
+						"description": "Mark a lesson as completed. Requires enrollment in the lesson's course."
+					}
+				},
+				{
+					"name": "Schedule",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/schedule",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "schedule"]
+						},
+						"description": "Upcoming schedules for approved enrollments."
+					}
+				},
+				{
+					"name": "Assignments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/assignments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "assignments"]
+						},
+						"description": "Published assignments for enrolled courses."
+					}
+				},
+				{
+					"name": "Submit Assignment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"إجابة الواجب هنا...\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/assignments/{{assignment_id}}/submit",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "assignments", "{{assignment_id}}", "submit"]
+						},
+						"description": "Submit assignment content.\n\nRequired: content (max 10000 chars)."
+					}
+				},
+				{
+					"name": "Grades",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/grades",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "grades"]
+						},
+						"description": "Graded assignments and certificates."
+					}
+				},
+				{
+					"name": "Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/profile",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "profile"]
+						}
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"أحمد محمد\",\n  \"phone\": \"+966500000000\",\n  \"country\": \"السعودية\",\n  \"city\": \"الرياض\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/profile",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "profile"]
+						},
+						"description": "Update student profile.\n\nOptional: name, phone, country, city."
+					}
+				}
+			]
+		}
+	]
+}
