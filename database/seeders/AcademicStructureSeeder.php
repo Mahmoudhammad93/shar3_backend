@@ -159,12 +159,11 @@ class AcademicStructureSeeder extends Seeder
     private function year(AcademicLevel $level, int $yearNumber, string $nameAr, string $slug): AcademicYear
     {
         return AcademicYear::query()->updateOrCreate(
-            ['academic_level_id' => $level->id, 'slug' => $slug],
+            ['academic_level_id' => $level->id, 'year_number' => $yearNumber],
             [
                 'name_ar' => $nameAr,
                 'name_en' => $nameAr,
-                'year_number' => $yearNumber,
-                'academic_level_id' => $level->id,
+                'slug' => $slug,
                 'sort_order' => $yearNumber,
                 'is_active' => true,
             ]
