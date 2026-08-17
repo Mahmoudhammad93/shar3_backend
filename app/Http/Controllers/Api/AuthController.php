@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
@@ -89,12 +90,22 @@ class AuthController extends Controller
 
         $user = User::query()->where('email', $validated['email'])->first();
 
-        if (! $user || ! password_verify($validated['password'], $user->password)) {
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
             return response()->json(['message' => 'بيانات الدخول غير صحيحة'], 401);
         }
 
-        if (! in_array($user->role, ['student', 'admin', 'staff'])) {
-            return response()->json(['message' => 'غير مصرح'], 403);
+        if ($user->role !== 'student') {
+            return response()->json(['message' => 'يرجى استخدام لوحة الإدارة لتسجيل الدخول.'], 403);
+        }
+
+        $user->load('student');
+
+        if (! $user->student) {
+            return response()->json(['message' => 'Student profile not found'], 403);
+        }
+
+        if ($user->student->status === Student::STATUS_SUSPENDED) {
+            return response()->json(['message' => 'تم إيقاف حسابك. يرجى التواصل مع الإدارة.'], 403);
         }
 
         $token = $user->createToken('student-token')->plainTextToken;
@@ -120,7 +131,7 @@ class AuthController extends Controller
 
     private function userPayload(User $user): array
     {
-        $user->load('student');
+        $user->loadMissing('student');
 
         return [
             'id' => $user->id,

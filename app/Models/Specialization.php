@@ -6,6 +6,7 @@ use App\Models\Concerns\HasSlug;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
@@ -29,13 +30,21 @@ class Specialization extends Model
         return $this->belongsTo(AcademicLevel::class, 'academic_level_id');
     }
 
-    public function subjects(): HasMany
+    public function curriculumAssignments(): HasMany
     {
-        return $this->hasMany(Subject::class);
+        return $this->hasMany(CurriculumAssignment::class);
     }
 
     public function studentChoices(): HasMany
     {
         return $this->hasMany(StudentSpecialization::class);
+    }
+
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(Student::class, 'student_specializations')
+            ->using(StudentSpecializationPivot::class)
+            ->withPivot(['status', 'selected_at'])
+            ->withTimestamps();
     }
 }

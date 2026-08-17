@@ -14,7 +14,6 @@ use App\Http\Resources\TestimonialResource;
 use App\Models\Announcement;
 use App\Models\Category;
 use App\Models\Course;
-use App\Models\Enrollment;
 use App\Models\Faq;
 use App\Models\HeroSlide;
 use App\Models\Program;

@@ -17,7 +17,7 @@ class SpecializationsTable
             ->columns([
                 TextColumn::make('level.name_ar')->label('المستوى'),
                 TextColumn::make('name_ar')->label('التخصص')->searchable()->sortable(),
-                TextColumn::make('subjects_count')->label('المواد')->counts('subjects'),
+                TextColumn::make('curriculum_assignments_count')->label('المواد')->counts('curriculumAssignments'),
                 IconColumn::make('is_active')->label('نشط')->boolean(),
             ])
             ->defaultSort('sort_order')

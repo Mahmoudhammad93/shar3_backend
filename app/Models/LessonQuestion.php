@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['lesson_id', 'question_ar', 'type', 'correct_answer', 'sort_order'])]
+#[Hidden(['correct_answer'])]
 class LessonQuestion extends Model
 {
     public const TYPE_CHOICE = 'choice';

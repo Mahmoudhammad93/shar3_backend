@@ -259,6 +259,7 @@ class Countries
     {
         $options = self::LIST;
         asort($options, SORT_STRING);
+
         return $options;
     }
 

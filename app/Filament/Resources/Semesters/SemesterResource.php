@@ -48,4 +48,11 @@ class SemesterResource extends Resource
             'edit' => EditSemester::route('/{record}/edit'),
         ];
     }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\GeneralCurriculumRelationManager::class,
+        ];
+    }
 }

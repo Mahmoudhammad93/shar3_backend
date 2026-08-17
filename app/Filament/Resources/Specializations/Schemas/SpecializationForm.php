@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Specializations\Schemas;
 
+use App\Enums\CurriculumType;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class SpecializationForm
 {
@@ -15,11 +17,18 @@ class SpecializationForm
         return $schema
             ->components([
                 Select::make('academic_level_id')
-                    ->label('المستوى')
-                    ->relationship('level', 'name_ar')
+                    ->label('المستوى الأكاديمي')
+                    ->relationship(
+                        'level',
+                        'name_ar',
+                        fn (Builder $query) => $query
+                            ->where('curriculum_type', CurriculumType::Specialized->value)
+                            ->where('is_active', true)
+                    )
                     ->required()
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->helperText('يُسمح فقط بالمستوى المتخصص'),
                 TextInput::make('name_ar')->label('التخصص (عربي)')->required(),
                 TextInput::make('name_en')->label('التخصص (English)'),
                 TextInput::make('slug')->label('الرابط')->required(),

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 #[Fillable([
     'site_name_ar', 'site_name_en', 'tagline_ar', 'tagline_en',
@@ -49,6 +50,19 @@ class SiteSetting extends Model
 
     public static function current(): self
     {
+        if (! Schema::hasTable((new static)->getTable())) {
+            return new static([
+                'site_name_ar' => 'معهد علم شرعي',
+                'admin_brand_name_ar' => 'معهد علم شرعي',
+                'admin_primary_color' => '#059669',
+                'admin_sidebar_color' => '#0f172a',
+                'admin_layout' => 'wide',
+                'admin_navigation' => 'sidebar',
+                'admin_sidebar_collapsible' => true,
+                'admin_compact_mode' => false,
+            ]);
+        }
+
         return static::query()->firstOrCreate([]);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Filament\Pages;
 
 use App\Models\SiteSetting;
-use App\Support\AdminPanelSettings;
 use Filament\Actions\Action;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;

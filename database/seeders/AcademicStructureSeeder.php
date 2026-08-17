@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CurriculumType;
 use App\Models\AcademicLevel;
 use App\Models\AcademicYear;
 use App\Models\Course;
+use App\Models\CurriculumAssignment;
 use App\Models\Semester;
 use App\Models\Specialization;
 use App\Models\Subject;
@@ -14,62 +16,61 @@ class AcademicStructureSeeder extends Seeder
 {
     public function run(): void
     {
-        $level1 = AcademicLevel::query()->updateOrCreate(
+        $preparatory = AcademicLevel::query()->updateOrCreate(
             ['number' => 1],
             [
-                'name_ar' => 'المستوى الأول',
-                'name_en' => 'Level 1',
-                'slug' => 'level-1',
-                'description_ar' => 'مرحلة التأسيس والسنوات الأولى في العلوم الشرعية.',
+                'name_ar' => 'المستوى التمهيدي',
+                'name_en' => 'Preparatory Level',
+                'slug' => 'preparatory-level',
+                'curriculum_type' => CurriculumType::General,
+                'description_ar' => 'السنة الأولى — مواد تأسيسية عامة.',
                 'sort_order' => 1,
                 'is_active' => true,
             ]
         );
 
-        $level2 = AcademicLevel::query()->updateOrCreate(
+        $advanced = AcademicLevel::query()->updateOrCreate(
             ['number' => 2],
             [
-                'name_ar' => 'المستوى الثاني',
-                'name_en' => 'Level 2',
-                'slug' => 'level-2',
-                'description_ar' => 'مرحلة التخصص في العلوم الشرعية.',
+                'name_ar' => 'المستوى المتقدم',
+                'name_en' => 'Advanced Level',
+                'slug' => 'advanced-level',
+                'curriculum_type' => CurriculumType::General,
+                'description_ar' => 'السنة الثانية والثالثة — منهج عام.',
                 'sort_order' => 2,
                 'is_active' => true,
             ]
         );
 
-        $level1Years = [
-            ['year_number' => 0, 'name_ar' => 'السنة التمهيدية', 'name_en' => 'Preparatory Year', 'slug' => 'preparatory'],
-            ['year_number' => 1, 'name_ar' => 'السنة الأولى', 'name_en' => 'First Year', 'slug' => 'first-year'],
-            ['year_number' => 2, 'name_ar' => 'السنة الثانية', 'name_en' => 'Second Year', 'slug' => 'second-year'],
+        $specialized = AcademicLevel::query()->updateOrCreate(
+            ['number' => 3],
+            [
+                'name_ar' => 'المستوى المتخصص',
+                'name_en' => 'Specialized Level',
+                'slug' => 'specialized-level',
+                'curriculum_type' => CurriculumType::Specialized,
+                'description_ar' => 'السنة الرابعة والخامسة — اختيار التخصصات.',
+                'sort_order' => 3,
+                'is_active' => true,
+            ]
+        );
+
+        $years = [
+            [$preparatory, ['year_number' => 1, 'name_ar' => 'السنة الأولى', 'slug' => 'first-year']],
+            [$advanced, ['year_number' => 2, 'name_ar' => 'السنة الثانية', 'slug' => 'second-year']],
+            [$advanced, ['year_number' => 3, 'name_ar' => 'السنة الثالثة', 'slug' => 'third-year']],
+            [$specialized, ['year_number' => 4, 'name_ar' => 'السنة الرابعة', 'slug' => 'fourth-year']],
+            [$specialized, ['year_number' => 5, 'name_ar' => 'السنة الخامسة', 'slug' => 'fifth-year']],
         ];
 
-        foreach ($level1Years as $index => $yearData) {
+        foreach ($years as $index => [$level, $yearData]) {
             $year = AcademicYear::query()->updateOrCreate(
-                ['academic_level_id' => $level1->id, 'slug' => $yearData['slug']],
+                ['academic_level_id' => $level->id, 'slug' => $yearData['slug']],
                 [
                     ...$yearData,
-                    'academic_level_id' => $level1->id,
-                    'sort_order' => $index + 1,
-                    'is_active' => true,
-                ]
-            );
-
-            $this->seedSemestersForYear($year);
-        }
-
-        $level2Years = [
-            ['year_number' => 4, 'name_ar' => 'السنة الرابعة', 'name_en' => 'Fourth Year', 'slug' => 'fourth-year'],
-            ['year_number' => 5, 'name_ar' => 'السنة الخامسة', 'name_en' => 'Fifth Year', 'slug' => 'fifth-year'],
-        ];
-
-        foreach ($level2Years as $index => $yearData) {
-            $year = AcademicYear::query()->updateOrCreate(
-                ['academic_level_id' => $level2->id, 'slug' => $yearData['slug']],
-                [
-                    ...$yearData,
-                    'academic_level_id' => $level2->id,
-                    'sort_order' => $index + 1,
+                    'name_en' => $yearData['name_ar'],
+                    'academic_level_id' => $level->id,
+                    'sort_order' => $yearData['year_number'],
                     'is_active' => true,
                 ]
             );
@@ -88,86 +89,99 @@ class AcademicStructureSeeder extends Seeder
                 ['slug' => $specData['slug']],
                 [
                     ...$specData,
-                    'academic_level_id' => $level2->id,
+                    'academic_level_id' => $specialized->id,
                     'sort_order' => $index + 1,
                     'is_active' => true,
                 ]
             );
         }
 
+        $this->seedFirstYearGeneralCurriculum();
+        $this->seedSpecializedCurriculumSamples();
         $this->linkExistingCoursesToSubjects();
-        $this->seedStudyPlanDetails();
     }
 
-    private function seedStudyPlanDetails(): void
+    private function seedFirstYearGeneralCurriculum(): void
     {
-        $firstYear = AcademicYear::query()
-            ->where('slug', 'first-year')
-            ->whereHas('level', fn ($q) => $q->where('number', 1))
-            ->first();
-
-        if (! $firstYear) {
-            return;
-        }
-
-        $firstSemester = $firstYear->semesters()->where('semester_number', 1)->first();
+        $firstYear = AcademicYear::query()->where('slug', 'first-year')->first();
+        $firstSemester = $firstYear?->semesters()->where('semester_number', 1)->first();
 
         if (! $firstSemester) {
             return;
         }
 
-        $subjects = [
-            [
-                'slug' => 'fiqh-1',
-                'name_ar' => 'الفقه',
-                'memorization_ar' => "متن \"الآداب الشرعية\" — حتى (من يريد أن يتزوج)\nمتن \"الورقات\" — حتى (وأما المسائل)",
-                'primary_text_ar' => "زاد المستقنع — دار المنهاج",
-                'supplementary_text_ar' => "الملخص الفقهي — دار المنهاج",
-                'sort_order' => 1,
-            ],
-            [
-                'slug' => 'usul-al-fiqh',
-                'name_ar' => 'أصول الفقه',
-                'memorization_ar' => null,
-                'primary_text_ar' => "الواضح في أصول الفقه — دار المنهاج",
-                'supplementary_text_ar' => "الورقات — دار المنهاج",
-                'sort_order' => 2,
-            ],
-            [
-                'slug' => 'nahw',
-                'name_ar' => 'النحو',
-                'memorization_ar' => "متن \"الآجرومية\" — حتى (وَالْمُضَافُ إِلَيْهِ)",
-                'primary_text_ar' => "الآجرومية — دار المنهاج",
-                'supplementary_text_ar' => "قطر الندى — دار المنهاج",
-                'sort_order' => 3,
-            ],
-            [
-                'slug' => 'mantiq',
-                'name_ar' => 'المنطق',
-                'memorization_ar' => null,
-                'primary_text_ar' => "الرسالة الشمسية — دار المنهاج",
-                'supplementary_text_ar' => null,
-                'sort_order' => 4,
-            ],
-            [
-                'slug' => 'adab',
-                'name_ar' => 'الآداب',
-                'memorization_ar' => null,
-                'primary_text_ar' => "الآداب المفرد — دار المنهاج",
-                'supplementary_text_ar' => null,
-                'sort_order' => 5,
-            ],
+        $catalog = [
+            ['slug' => 'fiqh-1', 'name_ar' => 'الفقه', 'sort_order' => 1],
+            ['slug' => 'usul-al-fiqh', 'name_ar' => 'أصول الفقه', 'sort_order' => 2],
+            ['slug' => 'nahw', 'name_ar' => 'النحو', 'sort_order' => 3],
+            ['slug' => 'mantiq', 'name_ar' => 'المنطق', 'sort_order' => 4],
+            ['slug' => 'adab', 'name_ar' => 'الآداب', 'sort_order' => 5],
         ];
 
-        foreach ($subjects as $subjectData) {
-            Subject::query()->updateOrCreate(
+        foreach ($catalog as $item) {
+            $subject = Subject::query()->updateOrCreate(
+                ['slug' => $item['slug']],
+                [
+                    'name_ar' => $item['name_ar'],
+                    'is_active' => true,
+                ]
+            );
+
+            CurriculumAssignment::query()->updateOrCreate(
                 [
                     'semester_id' => $firstSemester->id,
-                    'slug' => $subjectData['slug'],
+                    'subject_id' => $subject->id,
+                    'specialization_id' => null,
                 ],
                 [
-                    ...$subjectData,
+                    'sort_order' => $item['sort_order'],
+                    'is_required' => true,
+                    'is_active' => true,
+                ]
+            );
+        }
+    }
+
+    private function seedSpecializedCurriculumSamples(): void
+    {
+        $fourthYear = AcademicYear::query()->where('slug', 'fourth-year')->first();
+        $firstSemester = $fourthYear?->semesters()->where('semester_number', 1)->first();
+        $fiqhSpec = Specialization::query()->where('slug', 'fiqh-tafsir')->first();
+        $hadithSpec = Specialization::query()->where('slug', 'hadith')->first();
+
+        if (! $firstSemester || ! $fiqhSpec || ! $hadithSpec) {
+            return;
+        }
+
+        $algorithms = Subject::query()->updateOrCreate(
+            ['slug' => 'algorithms'],
+            ['name_ar' => 'Algorithms', 'is_active' => true]
+        );
+
+        $fiqhSubject = Subject::query()->updateOrCreate(
+            ['slug' => 'fiqh-specialized'],
+            ['name_ar' => 'فقه متخصص', 'is_active' => true]
+        );
+
+        $hadithSubject = Subject::query()->updateOrCreate(
+            ['slug' => 'hadith-specialized'],
+            ['name_ar' => 'حديث متخصص', 'is_active' => true]
+        );
+
+        foreach ([
+            [$fiqhSpec, $fiqhSubject, 1],
+            [$fiqhSpec, $algorithms, 2],
+            [$hadithSpec, $hadithSubject, 1],
+            [$hadithSpec, $algorithms, 2],
+        ] as [$spec, $subject, $order]) {
+            CurriculumAssignment::query()->updateOrCreate(
+                [
                     'semester_id' => $firstSemester->id,
+                    'subject_id' => $subject->id,
+                    'specialization_id' => $spec->id,
+                ],
+                [
+                    'sort_order' => $order,
                     'is_required' => true,
                     'is_active' => true,
                 ]
@@ -196,16 +210,8 @@ class AcademicStructureSeeder extends Seeder
 
     private function linkExistingCoursesToSubjects(): void
     {
-        $preparatoryYear = AcademicYear::query()
-            ->where('slug', 'preparatory')
-            ->whereHas('level', fn ($q) => $q->where('number', 1))
-            ->first();
-
-        if (! $preparatoryYear) {
-            return;
-        }
-
-        $firstSemester = $preparatoryYear->semesters()->where('semester_number', 1)->first();
+        $firstYear = AcademicYear::query()->where('slug', 'first-year')->first();
+        $firstSemester = $firstYear?->semesters()->where('semester_number', 1)->first();
 
         if (! $firstSemester) {
             return;
@@ -214,16 +220,25 @@ class AcademicStructureSeeder extends Seeder
         $courses = Course::query()->where('is_published', true)->orderBy('sort_order')->get();
 
         foreach ($courses as $index => $course) {
-            Subject::query()->updateOrCreate(
-                ['course_id' => $course->id],
+            $subject = Subject::query()->updateOrCreate(
+                ['slug' => 'course-'.$course->slug],
                 [
-                    'semester_id' => $firstSemester->id,
                     'name_ar' => $course->title_ar,
                     'name_en' => $course->title_en,
-                    'slug' => $course->slug,
                     'description_ar' => $course->description_ar,
-                    'description_en' => $course->description_en,
-                    'sort_order' => $index + 1,
+                    'course_id' => $course->id,
+                    'is_active' => true,
+                ]
+            );
+
+            CurriculumAssignment::query()->updateOrCreate(
+                [
+                    'semester_id' => $firstSemester->id,
+                    'subject_id' => $subject->id,
+                    'specialization_id' => null,
+                ],
+                [
+                    'sort_order' => 100 + $index,
                     'is_required' => true,
                     'is_active' => true,
                 ]

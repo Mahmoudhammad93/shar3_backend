@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'education_level', 'heard_about', 'works_full_time', 'participates_other_programs',
     'daily_hours', 'terms_accepted_at',
     'national_id', 'status', 'notes', 'photo',
+    'academic_level_id', 'academic_year_id',
 ])]
 class Student extends Model
 {
@@ -148,6 +150,35 @@ class Student extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function academicLevel(): BelongsTo
+    {
+        return $this->belongsTo(AcademicLevel::class);
+    }
+
+    public function academicYear(): BelongsTo
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function specializations(): BelongsToMany
+    {
+        return $this->belongsToMany(Specialization::class, 'student_specializations')
+            ->using(StudentSpecializationPivot::class)
+            ->withPivot(['status', 'selected_at'])
+            ->withTimestamps();
+    }
+
+    public function specializationChoices(): HasMany
+    {
+        return $this->hasMany(StudentSpecialization::class);
+    }
+
+    /** @deprecated Use specializations() */
+    public function specializationChoice(): HasOne
+    {
+        return $this->hasOne(StudentSpecialization::class);
+    }
+
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class);
@@ -173,10 +204,5 @@ class Student extends Model
         return $this->belongsToMany(Course::class, 'enrollments')
             ->withPivot(['status', 'enrolled_at', 'completed_at', 'notes'])
             ->withTimestamps();
-    }
-
-    public function specializationChoice(): HasOne
-    {
-        return $this->hasOne(StudentSpecialization::class);
     }
 }

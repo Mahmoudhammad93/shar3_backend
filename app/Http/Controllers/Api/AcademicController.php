@@ -16,8 +16,19 @@ class AcademicController extends Controller
             ->with([
                 'years' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
                 'years.semesters' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
-                'years.semesters.subjects' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order')->with('course:id,slug,title_ar,title_en'),
+                'years.semesters.curriculumAssignments' => fn ($q) => $q
+                    ->where('is_active', true)
+                    ->whereNull('specialization_id')
+                    ->orderBy('sort_order')
+                    ->with(['subject.course:id,slug,title_ar,title_en']),
                 'specializations' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
+                'specializations.curriculumAssignments' => fn ($q) => $q
+                    ->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->with([
+                        'subject.course:id,slug,title_ar,title_en',
+                        'semester' => fn ($sq) => $sq->with('year'),
+                    ]),
             ])
             ->orderBy('sort_order')
             ->get();

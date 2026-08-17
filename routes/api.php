@@ -11,12 +11,21 @@ use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\ProgramController;
 use App\Http\Controllers\Api\SettingController;
-use App\Http\Controllers\Api\StudentPortalController;
+use App\Http\Controllers\Api\StudentAssignmentController;
+use App\Http\Controllers\Api\StudentCertificateController;
+use App\Http\Controllers\Api\StudentCourseController;
+use App\Http\Controllers\Api\StudentDashboardController;
+use App\Http\Controllers\Api\StudentEnrollmentController;
+use App\Http\Controllers\Api\StudentGradeController;
+use App\Http\Controllers\Api\StudentLessonController;
+use App\Http\Controllers\Api\StudentProfileController;
+use App\Http\Controllers\Api\StudentQuizController;
+use App\Http\Controllers\Api\StudentScheduleController;
+use App\Http\Controllers\Api\StudentSpecializationController;
 use App\Http\Controllers\Api\TeacherController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-    // Public API
     Route::get('/home', [HomeController::class, 'index']);
     Route::get('/academic/structure', [AcademicController::class, 'structure']);
     Route::get('/settings', [SettingController::class, 'show']);
@@ -29,36 +38,37 @@ Route::prefix('v1')->group(function () {
     Route::get('/announcements', [AnnouncementController::class, 'index']);
     Route::get('/announcements/{announcement:slug}', [AnnouncementController::class, 'show']);
     Route::get('/faqs', [FaqController::class, 'index']);
-    Route::post('/contact', [ContactController::class, 'store']);
-    Route::post('/enrollments', [EnrollmentController::class, 'store']);
-    Route::post('/volunteer', [FeedbackController::class, 'volunteer']);
+    Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:contact');
+    Route::post('/enrollments', [EnrollmentController::class, 'store'])->middleware('throttle:enrollment');
+    Route::post('/volunteer', [FeedbackController::class, 'volunteer'])->middleware('throttle:contact');
 
-    // Auth
-    Route::post('/auth/register', [AuthController::class, 'register']);
-    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/register', [AuthController::class, 'register'])->middleware('throttle:auth');
+    Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:auth');
 
-    // Student portal (authenticated)
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
 
-        Route::prefix('student')->group(function () {
-            Route::get('/dashboard', [StudentPortalController::class, 'dashboard']);
-            Route::get('/courses', [StudentPortalController::class, 'courses']);
-            Route::post('/enrollments', [StudentPortalController::class, 'enroll']);
-            Route::get('/courses/{courseId}', [StudentPortalController::class, 'courseDetail']);
-            Route::post('/lessons/{lessonId}/progress', [StudentPortalController::class, 'updateLessonProgress']);
-            Route::post('/lessons/{lessonId}/complete', [StudentPortalController::class, 'completeLesson']);
-            Route::get('/lessons/{lessonId}/quiz', [StudentPortalController::class, 'lessonQuiz']);
-            Route::post('/lessons/{lessonId}/quiz', [StudentPortalController::class, 'submitLessonQuiz']);
+        Route::middleware('student')->prefix('student')->group(function () {
+            Route::get('/dashboard', StudentDashboardController::class);
+            Route::get('/courses', [StudentCourseController::class, 'index']);
+            Route::post('/enrollments', [StudentEnrollmentController::class, 'store'])->middleware('throttle:enrollment');
+            Route::get('/courses/{courseId}', [StudentCourseController::class, 'show']);
+            Route::post('/lessons/{lessonId}/progress', [StudentLessonController::class, 'updateProgress']);
+            Route::post('/lessons/{lessonId}/complete', [StudentLessonController::class, 'complete']);
+            Route::get('/lessons/{lessonId}/quiz', [StudentQuizController::class, 'show']);
+            Route::post('/lessons/{lessonId}/quiz', [StudentQuizController::class, 'submit'])->middleware('throttle:quiz');
             Route::post('/error-reports', [FeedbackController::class, 'reportError']);
-            Route::get('/schedule', [StudentPortalController::class, 'schedule']);
-            Route::get('/assignments', [StudentPortalController::class, 'assignments']);
-            Route::post('/assignments/{assignmentId}/submit', [StudentPortalController::class, 'submitAssignment']);
-            Route::get('/grades', [StudentPortalController::class, 'grades']);
-            Route::get('/certificates/{certificateId}', [StudentPortalController::class, 'showCertificate']);
-            Route::get('/profile', [StudentPortalController::class, 'profile']);
-            Route::put('/profile', [StudentPortalController::class, 'updateProfile']);
+            Route::get('/schedule', StudentScheduleController::class);
+            Route::get('/assignments', [StudentAssignmentController::class, 'index']);
+            Route::post('/assignments/{assignmentId}/submit', [StudentAssignmentController::class, 'submit']);
+            Route::get('/grades', StudentGradeController::class);
+            Route::get('/certificates/{certificateId}', [StudentCertificateController::class, 'show']);
+            Route::get('/profile', [StudentProfileController::class, 'show']);
+            Route::put('/profile', [StudentProfileController::class, 'update']);
+            Route::get('/specializations', [StudentSpecializationController::class, 'index']);
+            Route::post('/specializations', [StudentSpecializationController::class, 'store'])->middleware('throttle:enrollment');
+            Route::get('/curriculum', [StudentSpecializationController::class, 'curriculum']);
         });
     });
 });

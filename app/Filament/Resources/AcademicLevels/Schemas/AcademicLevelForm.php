@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\AcademicLevels\Schemas;
 
-use Filament\Forms\Components\TextInput;
+use App\Enums\CurriculumType;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -17,6 +19,14 @@ class AcademicLevelForm
                 TextInput::make('name_en')->label('الاسم (English)'),
                 TextInput::make('slug')->label('الرابط')->required(),
                 TextInput::make('number')->label('رقم المستوى')->required()->numeric()->minValue(1),
+                Select::make('curriculum_type')
+                    ->label('نوع المنهج')
+                    ->options(collect(CurriculumType::cases())->mapWithKeys(
+                        fn (CurriculumType $type) => [$type->value => $type->labelAr()]
+                    ))
+                    ->required()
+                    ->default(CurriculumType::General->value)
+                    ->helperText('العام: تمهيدي ومتقدم — المتخصص: يسمح باختيار التخصصات'),
                 Textarea::make('description_ar')->label('الوصف (عربي)')->columnSpanFull(),
                 Textarea::make('description_en')->label('الوصف (English)')->columnSpanFull(),
                 TextInput::make('sort_order')->label('الترتيب')->required()->numeric()->default(0),

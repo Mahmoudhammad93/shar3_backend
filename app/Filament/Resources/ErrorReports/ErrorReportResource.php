@@ -6,13 +6,13 @@ use App\Filament\Resources\ErrorReports\Pages\EditErrorReport;
 use App\Filament\Resources\ErrorReports\Pages\ListErrorReports;
 use App\Models\ErrorReport;
 use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 

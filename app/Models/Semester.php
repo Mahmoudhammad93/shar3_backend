@@ -32,8 +32,8 @@ class Semester extends Model
         return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 
-    public function subjects(): HasMany
+    public function curriculumAssignments(): HasMany
     {
-        return $this->hasMany(Subject::class)->orderBy('sort_order');
+        return $this->hasMany(CurriculumAssignment::class)->orderBy('sort_order');
     }
 }

@@ -4,8 +4,8 @@ namespace App\Filament\Pages;
 
 use App\Filament\Resources\Subjects\SubjectResource;
 use App\Filament\Resources\Subjects\Tables\SubjectsTable;
+use App\Models\CurriculumAssignment;
 use App\Models\SiteSetting;
-use App\Models\Subject;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Textarea;
@@ -92,8 +92,8 @@ class ManageStudyPlan extends Page implements HasTable
     {
         return SubjectsTable::configure($table)
             ->query(
-                Subject::query()
-                    ->with(['semester.year.level', 'specialization', 'course'])
+                CurriculumAssignment::query()
+                    ->with(['semester.year.level', 'specialization', 'subject.course'])
             )
             ->heading('مواد الخطة الدراسية')
             ->description('عدّل الحفظ والمتون الأساسية والكتب التكميلية لكل مادة')

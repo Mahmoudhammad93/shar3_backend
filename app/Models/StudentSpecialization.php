@@ -2,19 +2,21 @@
 
 namespace App\Models;
 
+use App\Enums\StudentSpecializationStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
-    'student_id', 'specialization_id', 'chosen_at',
+    'student_id', 'specialization_id', 'status', 'selected_at',
 ])]
 class StudentSpecialization extends Model
 {
     protected function casts(): array
     {
         return [
-            'chosen_at' => 'datetime',
+            'status' => StudentSpecializationStatus::class,
+            'selected_at' => 'datetime',
         ];
     }
 

@@ -48,4 +48,11 @@ class SpecializationResource extends Resource
             'edit' => EditSpecialization::route('/{record}/edit'),
         ];
     }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\CurriculumAssignmentsRelationManager::class,
+        ];
+    }
 }

@@ -25,6 +25,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(SiteSettingSeeder::class);
 
+        User::query()->firstOrCreate(
+            ['email' => 'admin@share3a.com'],
+            ['name' => 'مدير النظام', 'password' => 'password', 'role' => 'admin']
+        );
+
         HeroSlide::query()->create([
             'title_ar' => 'معهد علم شرعي',
             'subtitle_ar' => 'طلب العلم فريضة على كل مسلم',
