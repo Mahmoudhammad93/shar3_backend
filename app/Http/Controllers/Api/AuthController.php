@@ -57,11 +57,13 @@ class AuthController extends Controller
             return $user;
         });
 
-        $token = $user->createToken('student-token')->plainTextToken;
+        $token = $this->issueStudentToken($user);
 
         return response()->json([
             'message' => 'تم إنشاء حسابك بنجاح وتم تسجيلك في السنة التمهيدية — الأولى.',
-            'token' => $token,
+            'token' => $token['token'],
+            'expires_at' => $token['expires_at'],
+            'expires_in' => $token['expires_in'],
             'user' => $this->userPayload($user),
         ], 201);
     }
@@ -93,11 +95,13 @@ class AuthController extends Controller
             return response()->json(['message' => 'تم إيقاف حسابك. يرجى التواصل مع الإدارة.'], 403);
         }
 
-        $token = $user->createToken('student-token')->plainTextToken;
+        $token = $this->issueStudentToken($user);
 
         return response()->json([
             'message' => 'تم تسجيل الدخول بنجاح',
-            'token' => $token,
+            'token' => $token['token'],
+            'expires_at' => $token['expires_at'],
+            'expires_in' => $token['expires_in'],
             'user' => $this->userPayload($user),
         ]);
     }
@@ -112,6 +116,23 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         return response()->json(['user' => $this->userPayload($request->user())]);
+    }
+
+    /**
+     * @return array{token: string, expires_at: string, expires_in: int}
+     */
+    private function issueStudentToken(User $user): array
+    {
+        $expiresInMinutes = max(1, (int) config('sanctum.expiration', 60));
+        $expiresAt = now()->addMinutes($expiresInMinutes);
+
+        $token = $user->createToken('student-token', ['*'], $expiresAt)->plainTextToken;
+
+        return [
+            'token' => $token,
+            'expires_at' => $expiresAt->toIso8601String(),
+            'expires_in' => $expiresInMinutes * 60,
+        ];
     }
 
     private function userPayload(User $user): array

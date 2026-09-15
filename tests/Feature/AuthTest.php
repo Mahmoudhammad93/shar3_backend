@@ -88,8 +88,41 @@ class AuthTest extends TestCase
         $this->postJson('/api/v1/auth/login', [
             'email' => 'student@example.com',
             'password' => 'password123',
-        ])->assertOk()->assertJsonStructure(['token']);
+        ])->assertOk()
+            ->assertJsonStructure(['token', 'expires_at', 'expires_in'])
+            ->assertJsonPath('expires_in', 3600);
     }
+
+    public function test_student_token_expires_after_one_hour(): void
+    {
+        config(['sanctum.expiration' => 60]);
+
+        $student = $this->createStudent(['email' => 'expire@example.com']);
+        $student->user->update(['password' => 'password123']);
+
+        $token = $this->postJson('/api/v1/auth/login', [
+            'email' => 'expire@example.com',
+            'password' => 'password123',
+        ])->assertOk()->json('token');
+
+        $this->withToken($token)
+            ->getJson('/api/v1/auth/me')
+            ->assertOk();
+
+        $accessToken = $student->user->tokens()->latest('id')->firstOrFail();
+        $this->assertNotNull($accessToken->expires_at);
+        $this->assertTrue($accessToken->expires_at->lessThanOrEqualTo(now()->addHour()));
+
+        $accessToken->forceFill(['expires_at' => now()->subMinute()])->save();
+
+        $this->flushSession();
+        $this->app['auth']->forgetGuards();
+
+        $this->withToken($token)
+            ->getJson('/api/v1/auth/me')
+            ->assertUnauthorized();
+    }
+
 
     public function test_login_fails_with_invalid_credentials(): void
     {
