@@ -2,45 +2,28 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\AssignPreparatoryPlacementAction;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterStudentRequest;
 use App\Models\Student;
 use App\Models\User;
+use App\Support\StudentAuthPayload;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
-    public function register(Request $request): JsonResponse
+    public function register(RegisterStudentRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'whatsapp' => ['nullable', 'string', 'max:50'],
-            'password' => ['required', 'confirmed', Password::defaults()],
-            'gender' => ['nullable', 'in:male,female'],
-            'birth_date' => ['nullable', 'date'],
-            'nationality' => ['nullable', 'string', 'max:100'],
-            'country' => ['nullable', 'string', 'max:100'],
-            'education_level' => ['nullable', 'string', 'max:100'],
-            'heard_about' => ['nullable', 'string', 'max:255'],
-            'works_full_time' => ['nullable', 'boolean'],
-            'participates_other_programs' => ['nullable', 'boolean'],
-            'daily_hours' => ['nullable', 'string', 'max:50'],
-            'accept_terms' => ['accepted'],
-        ], [
-            'email.unique' => 'البريد الإلكتروني مستخدم بالفعل.',
-            'password.confirmed' => 'كلمتا المرور غير متطابقتين.',
-            'accept_terms.accepted' => 'يجب الموافقة على الشروط وسياسة الخصوصية.',
-        ]);
+        $validated = $request->validated();
 
         $fullName = trim($validated['first_name'].' '.$validated['last_name']);
 
-        $user = DB::transaction(function () use ($validated, $fullName) {
+        $placement = app(AssignPreparatoryPlacementAction::class)->execute();
+
+        $user = DB::transaction(function () use ($validated, $fullName, $placement) {
             $user = User::query()->create([
                 'name' => $fullName,
                 'email' => $validated['email'],
@@ -67,6 +50,8 @@ class AuthController extends Controller
                 'daily_hours' => $validated['daily_hours'] ?? null,
                 'terms_accepted_at' => now(),
                 'status' => Student::STATUS_ACTIVE,
+                'approved_at' => now(),
+                ...$placement,
             ]);
 
             return $user;
@@ -75,7 +60,7 @@ class AuthController extends Controller
         $token = $user->createToken('student-token')->plainTextToken;
 
         return response()->json([
-            'message' => 'تم إنشاء الحساب بنجاح',
+            'message' => 'تم إنشاء حسابك بنجاح وتم تسجيلك في السنة التمهيدية — الأولى.',
             'token' => $token,
             'user' => $this->userPayload($user),
         ], 201);
@@ -131,7 +116,7 @@ class AuthController extends Controller
 
     private function userPayload(User $user): array
     {
-        $user->loadMissing('student');
+        $user->loadMissing('student.academicLevel', 'student.academicYear', 'student.currentSemester');
 
         return [
             'id' => $user->id,
@@ -139,6 +124,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'role' => $user->role,
             'student_id' => $user->student?->id,
+            'student' => $user->student ? StudentAuthPayload::for($user->student) : null,
         ];
     }
 }

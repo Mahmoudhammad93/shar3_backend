@@ -34,7 +34,7 @@ class SubjectForm
                     Textarea::make('primary_text_ar')
                         ->label('المتون / الكتب الأساسية')
                         ->rows(4)
-                        ->helperText('يظهر في عمود «أساسي» في الموقع')
+                        ->helperText('يظهر في عمود «اسم الكتاب» في الموقع')
                         ->columnSpanFull(),
                     Textarea::make('supplementary_text_ar')
                         ->label('الكتب التكميلية')

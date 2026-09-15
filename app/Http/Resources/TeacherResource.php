@@ -19,6 +19,7 @@ class TeacherResource extends BaseResource
             'bio_en' => $this->bio_en,
             'specializations' => $this->specializations,
             'photo' => $this->mediaUrl($this->photo),
+            'is_featured' => $this->is_featured,
             'courses_count' => $this->whenCounted('courses'),
             'courses' => CourseResource::collection($this->whenLoaded('courses')),
         ];

@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TeacherResource;
 use App\Models\Teacher;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $teachers = Teacher::query()
             ->where('is_active', true)
+            ->when($request->boolean('featured'), fn ($query) => $query->where('is_featured', true)->limit(4))
             ->withCount('courses')
             ->orderBy('sort_order')
             ->get();

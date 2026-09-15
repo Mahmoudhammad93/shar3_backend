@@ -9,6 +9,7 @@ use App\Filament\Pages\ManageSiteSettings;
 use App\Filament\Pages\ManageStudyPlan;
 use App\Filament\Widgets\LatestContactMessages;
 use App\Filament\Widgets\LatestEnrollments;
+use App\Filament\Widgets\LatestStudentRegistrations;
 use App\Filament\Widgets\StatsOverview;
 use App\Support\AdminPanelSettings;
 use Filament\Http\Middleware\Authenticate;
@@ -61,10 +62,15 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 StatsOverview::class,
+                LatestStudentRegistrations::class,
                 LatestEnrollments::class,
                 LatestContactMessages::class,
                 AccountWidget::class,
             ])
+            ->renderHook(
+                PanelsRenderHook::SCRIPTS_BEFORE,
+                fn (): string => '<script src="'.e(asset('js/tus.min.js')).'"></script><script src="'.e(asset('js/bunny-lesson-uploader.js')).'"></script>',
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

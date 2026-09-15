@@ -57,9 +57,9 @@ class DatabaseSeeder extends Seeder
         ])->map(fn ($data, $i) => Category::query()->create([...$data, 'sort_order' => $i + 1]));
 
         $programs = collect([
-            ['name_ar' => 'البرنامج التمهيدي', 'slug' => 'intro', 'duration' => '6 أشهر', 'level' => 'مبتدئ'],
-            ['name_ar' => 'برنامج المتوسط', 'slug' => 'intermediate', 'duration' => '12 شهراً', 'level' => 'متوسط'],
-            ['name_ar' => 'برنامج المتقدم', 'slug' => 'advanced', 'duration' => '24 شهراً', 'level' => 'متقدم'],
+            ['name_ar' => 'السنة التمهيدية', 'slug' => 'preparatory-program', 'duration' => 'سنة واحدة', 'level' => 'تأسيس', 'description_ar' => 'سنة عامة لجميع الطلاب — إطلاع على مبادئ العلوم الشرعية واللغوية.'],
+            ['name_ar' => 'مستوى التأصيل العلمي', 'slug' => 'taaseel-program', 'duration' => 'سنتان', 'level' => 'تأصيل', 'description_ar' => 'السنة الثانية والثالثة — توسيع وتأصيل في العلوم الشرعية.'],
+            ['name_ar' => 'مستوى التخصص', 'slug' => 'specialization-program', 'duration' => 'سنتان', 'level' => 'تخصص', 'description_ar' => 'السنة الرابعة والخامسة — التخصص في إحدى الشعب الأربع.'],
         ])->map(fn ($data, $i) => Program::query()->create([...$data, 'sort_order' => $i + 1]));
 
         $teachers = collect([
@@ -206,6 +206,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(AcademicStructureSeeder::class);
+        $this->call(SubjectCourseSeeder::class);
         $this->call(StudyPlanContentSeeder::class);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Lesson;
+use App\Observers\PreserveExistingLessonPlayback;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -17,7 +19,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if ($appUrl = config('app.url')) {
+        Lesson::observe(PreserveExistingLessonPlayback::class);
+
+        if (! app()->runningInConsole() && app()->environment('local')) {
+            URL::forceRootUrl(request()->getSchemeAndHttpHost());
+        } elseif ($appUrl = config('app.url')) {
             URL::forceRootUrl($appUrl);
         }
 

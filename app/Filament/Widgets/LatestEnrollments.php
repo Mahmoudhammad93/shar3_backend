@@ -9,9 +9,9 @@ use Filament\Widgets\TableWidget;
 
 class LatestEnrollments extends TableWidget
 {
-    protected static ?string $heading = 'أحدث طلبات التسجيل';
+    protected static ?string $heading = 'أحدث طلبات التسجيل في الدورات العامة';
 
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
 
     protected int|string|array $columnSpan = 'full';
 

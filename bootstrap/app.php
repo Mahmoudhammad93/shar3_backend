@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureActiveStudent;
 use App\Http\Middleware\EnsureStudentUser;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'student' => EnsureStudentUser::class,
+            'active-student' => EnsureActiveStudent::class,
+            'staff' => \App\Http\Middleware\EnsureStaffUser::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

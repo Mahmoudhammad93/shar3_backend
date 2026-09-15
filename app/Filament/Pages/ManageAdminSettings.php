@@ -4,6 +4,8 @@ namespace App\Filament\Pages;
 
 use App\Models\SiteSetting;
 use App\Support\AdminPanelSettings;
+use App\Support\DashboardColorPalettes;
+use App\Support\HexColor;
 use Filament\Actions\Action;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
@@ -16,6 +18,9 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -38,6 +43,26 @@ class ManageAdminSettings extends Page
     public function mount(): void
     {
         $this->form->fill(SiteSetting::current()->toArray());
+    }
+
+    public function applyAdminColorPalette(string $paletteId): void
+    {
+        if ($paletteId === 'custom') {
+            $this->data['admin_color_palette'] = 'custom';
+
+            return;
+        }
+
+        $palette = DashboardColorPalettes::admin($paletteId);
+
+        if (! $palette) {
+            return;
+        }
+
+        $this->data = DashboardColorPalettes::applyAdminPalette(
+            array_merge($this->data ?? [], ['admin_color_palette' => $paletteId]),
+            $paletteId,
+        );
     }
 
     public function defaultForm(Schema $schema): Schema
@@ -67,18 +92,35 @@ class ManageAdminSettings extends Page
                         ->helperText('يظهر في الشريط الجانبي وشاشة تسجيل الدخول'),
                 ])->columns(2),
                 Section::make('الألوان والمظهر')->schema([
+                    View::make('filament.forms.color-palette-picker')
+                        ->viewData(fn (Get $get): array => [
+                            'palettes' => DashboardColorPalettes::adminList(),
+                            'selected' => $get('admin_color_palette') ?? 'custom',
+                            'applyMethod' => 'applyAdminColorPalette',
+                            'heading' => 'لوحات ألوان لوحة الإدارة',
+                            'description' => '١٠ لوحات عصرية — انقر على أي بطاقة لمعاينة الألوان وتطبيقها فوراً على لوحة Filament.',
+                        ])
+                        ->columnSpanFull(),
                     ColorPicker::make('admin_primary_color')
                         ->label('اللون الأساسي')
-                        ->default('#059669'),
+                        ->default('#059669')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn (Set $set) => $set('admin_color_palette', 'custom')),
                     ColorPicker::make('admin_sidebar_color')
                         ->label('لون الشريط الجانبي')
-                        ->default('#0f172a'),
+                        ->default('#0f172a')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn (Set $set) => $set('admin_color_palette', 'custom')),
                     ColorPicker::make('admin_accent_color')
                         ->label('لون التمييز')
-                        ->default('#c9a227'),
+                        ->default('#c9a227')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn (Set $set) => $set('admin_color_palette', 'custom')),
                     ColorPicker::make('admin_background_color')
                         ->label('لون خلفية المحتوى')
-                        ->default('#f8fafc'),
+                        ->default('#f8fafc')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn (Set $set) => $set('admin_color_palette', 'custom')),
                     Select::make('admin_style')
                         ->label('نمط لوحة الإدارة')
                         ->options([
@@ -152,13 +194,31 @@ class ManageAdminSettings extends Page
     public function save(): void
     {
         $data = $this->form->getState();
+
+        foreach ([
+            'admin_primary_color' => '#059669',
+            'admin_sidebar_color' => '#0f172a',
+            'admin_accent_color' => '#c9a227',
+            'admin_background_color' => '#f8fafc',
+        ] as $field => $fallback) {
+            if (array_key_exists($field, $data)) {
+                $data[$field] = HexColor::normalize($data[$field], $fallback);
+            }
+        }
+
+        if (empty($data['admin_color_palette'])) {
+            $data['admin_color_palette'] = 'custom';
+        }
+
         SiteSetting::current()->update($data);
         AdminPanelSettings::forgetCache();
 
         Notification::make()
             ->title('تم حفظ إعدادات لوحة الإدارة')
-            ->body('قم بتحديث الصفحة لرؤية التغييرات.')
+            ->body('جاري تحديث الصفحة لتطبيق الألوان الجديدة...')
             ->success()
             ->send();
+
+        $this->redirect(static::getUrl(), navigate: false);
     }
 }

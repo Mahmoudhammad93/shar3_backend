@@ -9,14 +9,35 @@ trait HasSlug
     protected static function bootHasSlug(): void
     {
         static::creating(function ($model) {
-            if (empty($model->slug) && ! empty($model->{static::slugSource()})) {
-                $model->slug = static::generateUniqueSlug($model->{static::slugSource()});
+            $source = $model->{static::slugSource()} ?? null;
+            $rawSlug = $model->slug ?? null;
+
+            if (filled($rawSlug)) {
+                $base = trim((string) $rawSlug);
+            } elseif (filled($source)) {
+                $base = (string) $source;
+            } else {
+                return;
             }
+
+            $model->slug = static::generateUniqueSlug($base);
         });
 
         static::updating(function ($model) {
-            if ($model->isDirty(static::slugSource()) && ! $model->isDirty('slug')) {
-                $model->slug = static::generateUniqueSlug($model->{static::slugSource()}, $model->getKey());
+            if ($model->isDirty('slug')) {
+                $model->slug = static::generateUniqueSlug(
+                    trim((string) $model->slug),
+                    $model->getKey(),
+                );
+
+                return;
+            }
+
+            if ($model->isDirty(static::slugSource())) {
+                $model->slug = static::generateUniqueSlug(
+                    (string) $model->{static::slugSource()},
+                    $model->getKey(),
+                );
             }
         });
     }
@@ -26,9 +47,12 @@ trait HasSlug
         return 'name_ar';
     }
 
-    protected static function generateUniqueSlug(string $value, ?int $ignoreId = null): string
+    public static function generateUniqueSlug(string $value, ?int $ignoreId = null): string
     {
-        $slug = Str::slug($value);
+        $slug = Str::slug(trim($value));
+        if ($slug === '') {
+            $slug = 'item-'.Str::lower(Str::random(8));
+        }
         $original = $slug;
         $counter = 1;
 

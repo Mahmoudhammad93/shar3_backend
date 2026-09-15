@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
+use App\Support\LessonMedia;
 use App\Support\MediaUrl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -114,11 +115,13 @@ class StudentCourseController extends Controller
                     ? ($progressMap->get($previousLesson->id)?->is_completed ?? false)
                     : true;
 
-                return [
+                $media = LessonMedia::playbackPayload($lesson);
+
+                return array_merge([
                     'id' => $lesson->id,
                     'title_ar' => $lesson->title_ar,
                     'content_ar' => $lesson->content_ar,
-                    'video_url' => $lesson->video_url,
+                    'video_url' => LessonMedia::legacyOrNullVideoUrl($lesson),
                     'duration_minutes' => $lesson->duration_minutes,
                     'sort_order' => $lesson->sort_order,
                     'is_completed' => $progressMap->get($lesson->id)?->is_completed ?? false,
@@ -126,7 +129,7 @@ class StudentCourseController extends Controller
                     'quiz_passed' => $progressMap->get($lesson->id)?->quiz_passed ?? false,
                     'has_quiz' => ($lesson->questions_count ?? 0) > 0,
                     'is_locked' => ! $previousCompleted,
-                ];
+                ], $media);
             }),
         ]);
     }

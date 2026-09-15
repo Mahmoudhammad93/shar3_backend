@@ -16,7 +16,8 @@ class StatsOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $pendingEnrollments = Enrollment::query()->where('status', 'pending')->count();
+        $pendingStudents = Student::query()->where('status', Student::STATUS_PENDING)->count();
+        $pendingCourseEnrollments = Enrollment::query()->where('status', 'pending')->count();
         $newMessages = ContactMessage::query()->where('status', 'new')->count();
 
         return [
@@ -32,10 +33,14 @@ class StatsOverview extends StatsOverviewWidget
                 ->description('معلمون نشطون')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('info'),
-            Stat::make('طلبات التسجيل', $pendingEnrollments)
-                ->description('بانتظار المراجعة')
+            Stat::make('طلبات تسجيل حسابات', $pendingStudents)
+                ->description('طلاب بانتظار الاعتماد')
+                ->descriptionIcon('heroicon-m-user-plus')
+                ->color($pendingStudents > 0 ? 'warning' : 'gray'),
+            Stat::make('طلبات دورات عامة', $pendingCourseEnrollments)
+                ->description('تسجيل في دورات إضافية')
                 ->descriptionIcon('heroicon-m-clipboard-document-check')
-                ->color($pendingEnrollments > 0 ? 'warning' : 'gray'),
+                ->color($pendingCourseEnrollments > 0 ? 'warning' : 'gray'),
             Stat::make('رسائل جديدة', $newMessages)
                 ->description('رسائل التواصل')
                 ->descriptionIcon('heroicon-m-envelope')

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Concerns\ResolvesAuthenticatedStudent;
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
+use App\Support\LessonMedia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -57,7 +58,7 @@ class StudentLessonController extends Controller
             ->where('lesson_id', $lessonId)
             ->first();
 
-        if ($lesson->video_url) {
+        if (LessonMedia::requiresVideoProgress($lesson)) {
             abort_unless(
                 ($progress?->progress_percent ?? 0) >= 95,
                 422,

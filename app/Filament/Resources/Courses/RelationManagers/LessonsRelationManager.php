@@ -3,12 +3,11 @@
 namespace App\Filament\Resources\Courses\RelationManagers;
 
 use App\Filament\Resources\Lessons\LessonResource;
+use App\Filament\Resources\Lessons\Schemas\LessonForm;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
@@ -28,43 +27,34 @@ class LessonsRelationManager extends RelationManager
 
     public function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                TextInput::make('title_ar')
-                    ->label('العنوان (عربي)')
-                    ->required(),
-                TextInput::make('title_en')
-                    ->label('العنوان (إنجليزي)'),
-                Textarea::make('content_ar')
-                    ->label('المحتوى')
-                    ->columnSpanFull(),
-                TextInput::make('video_url')
-                    ->label('رابط الفيديو')
-                    ->url(),
-                TextInput::make('duration_minutes')
-                    ->label('المدة (دقائق)')
-                    ->numeric(),
-                TextInput::make('sort_order')
-                    ->label('الترتيب')
-                    ->required()
-                    ->numeric()
-                    ->default(0)
-                    ->rules(function () {
-                        $courseId = $this->getOwnerRecord()->getKey();
+        $components = array_values(array_filter(
+            LessonForm::components(includeCourse: false),
+            fn ($component) => ! in_array($component->getName(), ['sort_order', 'is_published'], true),
+        ));
 
-                        return [
-                            Rule::unique('lessons', 'sort_order')
-                                ->where('course_id', $courseId)
-                                ->ignore($this->getMountedTableActionRecord()),
-                        ];
-                    })
-                    ->validationMessages([
-                        'unique' => 'رقم الترتيب مستخدم بالفعل في هذه الدورة.',
-                    ]),
-                Toggle::make('is_published')
-                    ->label('منشور')
-                    ->default(true),
+        $components[] = TextInput::make('sort_order')
+            ->label('الترتيب')
+            ->required()
+            ->numeric()
+            ->default(0)
+            ->rules(function () {
+                $courseId = $this->getOwnerRecord()->getKey();
+
+                return [
+                    Rule::unique('lessons', 'sort_order')
+                        ->where('course_id', $courseId)
+                        ->ignore($this->getMountedTableActionRecord()),
+                ];
+            })
+            ->validationMessages([
+                'unique' => 'رقم الترتيب مستخدم بالفعل في هذه الدورة.',
             ]);
+
+        $components[] = \Filament\Forms\Components\Toggle::make('is_published')
+            ->label('منشور')
+            ->default(true);
+
+        return $schema->components($components);
     }
 
     public function table(Table $table): Table
@@ -79,6 +69,9 @@ class LessonsRelationManager extends RelationManager
                 TextColumn::make('title_ar')
                     ->label('العنوان')
                     ->searchable(),
+                TextColumn::make('media_type')
+                    ->label('الوسائط')
+                    ->placeholder('—'),
                 TextColumn::make('duration_minutes')
                     ->label('الدقائق'),
                 TextColumn::make('questions_count')

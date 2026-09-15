@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Support\HexColor;
+use App\Support\WebsiteNavPages;
 use Illuminate\Http\Request;
 
 class SettingResource extends BaseResource
@@ -32,6 +34,7 @@ class SettingResource extends BaseResource
             'twitter' => $this->twitter,
             'instagram' => $this->instagram,
             'youtube' => $this->youtube,
+            'telegram' => $this->telegram,
             'logo' => $this->mediaUrl($this->logo),
             'favicon' => $this->mediaUrl($this->favicon),
             'footer_text_ar' => $this->footer_text_ar,
@@ -49,15 +52,25 @@ class SettingResource extends BaseResource
             'enable_wallet' => $this->enable_wallet ?? true,
             'dashboard_logo' => $this->mediaUrl($this->dashboard_logo),
             'dashboard_use_site_logo' => $this->dashboard_use_site_logo ?? true,
-            'dashboard_primary_color' => $this->dashboard_primary_color ?? '#004d40',
-            'dashboard_sidebar_color' => $this->dashboard_sidebar_color ?? '#0a3d34',
-            'dashboard_accent_color' => $this->dashboard_accent_color ?? '#c9a227',
-            'dashboard_background_color' => $this->dashboard_background_color ?? '#f4f7f6',
+            'dashboard_primary_color' => HexColor::normalize($this->dashboard_primary_color, '#004d40'),
+            'dashboard_sidebar_color' => HexColor::normalize($this->dashboard_sidebar_color, '#0a3d34'),
+            'dashboard_accent_color' => HexColor::normalize($this->dashboard_accent_color, '#c9a227'),
+            'dashboard_background_color' => HexColor::normalize($this->dashboard_background_color, '#f4f7f6'),
+            'dashboard_color_palette' => $this->dashboard_color_palette ?? 'custom',
             'dashboard_style' => $this->dashboard_style ?? 'classic',
             'dashboard_layout' => $this->dashboard_layout ?? 'wide',
             'dashboard_sidebar_style' => $this->dashboard_sidebar_style ?? 'dark',
             'dashboard_show_pattern' => $this->dashboard_show_pattern ?? true,
             'dashboard_compact_mode' => $this->dashboard_compact_mode ?? false,
+            'admin_color_palette' => $this->admin_color_palette ?? 'custom',
+            'homepage_featured_courses_enabled' => (bool) ($this->homepage_featured_courses_enabled ?? false),
+            'homepage_featured_courses_visible_from' => $this->homepage_featured_courses_visible_from?->toIso8601String(),
+            'homepage_featured_courses_visible_until' => $this->homepage_featured_courses_visible_until?->toIso8601String(),
+            'website_primary_color' => HexColor::normalize($this->website_primary_color, '#002B5B'),
+            'website_accent_color' => HexColor::normalize($this->website_accent_color, '#C5A04D'),
+            'website_background_color' => HexColor::normalize($this->website_background_color, '#f7f9fc'),
+            'website_color_palette' => $this->website_color_palette ?? 'institute_navy_gold',
+            'website_nav_pages' => WebsiteNavPages::resolve($this->website_nav_pages),
         ];
     }
 }

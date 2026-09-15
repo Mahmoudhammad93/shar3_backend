@@ -15,7 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'education_level', 'heard_about', 'works_full_time', 'participates_other_programs',
     'daily_hours', 'terms_accepted_at',
     'national_id', 'status', 'notes', 'photo',
-    'academic_level_id', 'academic_year_id',
+    'academic_level_id', 'academic_year_id', 'current_semester_id',
+    'approved_at', 'approved_by', 'rejected_at', 'rejected_by', 'rejection_reason',
 ])]
 class Student extends Model
 {
@@ -27,6 +28,8 @@ class Student extends Model
 
     public const STATUS_SUSPENDED = 3;
 
+    public const STATUS_REJECTED = 4;
+
     /** @return array<int, string> */
     public static function statusOptions(): array
     {
@@ -35,7 +38,28 @@ class Student extends Model
             self::STATUS_ACTIVE => 'نشط',
             self::STATUS_GRADUATED => 'متخرج',
             self::STATUS_SUSPENDED => 'موقوف',
+            self::STATUS_REJECTED => 'مرفوض',
         ];
+    }
+
+    public function statusKey(): string
+    {
+        return match ($this->status) {
+            self::STATUS_PENDING => 'pending',
+            self::STATUS_ACTIVE => 'active',
+            self::STATUS_GRADUATED => 'graduated',
+            self::STATUS_SUSPENDED => 'suspended',
+            self::STATUS_REJECTED => 'rejected',
+            default => 'unknown',
+        };
+    }
+
+    public function isAcademicallyActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE
+            && $this->academic_level_id
+            && $this->academic_year_id
+            && $this->current_semester_id;
     }
 
     public function statusLabel(): string
@@ -142,6 +166,8 @@ class Student extends Model
             'works_full_time' => 'boolean',
             'participates_other_programs' => 'boolean',
             'terms_accepted_at' => 'datetime',
+            'approved_at' => 'datetime',
+            'rejected_at' => 'datetime',
         ];
     }
 
@@ -158,6 +184,21 @@ class Student extends Model
     public function academicYear(): BelongsTo
     {
         return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function currentSemester(): BelongsTo
+    {
+        return $this->belongsTo(Semester::class, 'current_semester_id');
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function rejectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 
     public function specializations(): BelongsToMany

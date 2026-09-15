@@ -9,12 +9,14 @@ return [
     'allowed_origins' => array_values(array_unique(array_filter([
         $frontendUrl,
         'http://localhost:3000',
+        'http://localhost:3001',
         'https://share3a.chiefcoder.net',
         'https://shar3.chiefcoder.net',
         ...$extraOrigins,
     ]))),
     'allowed_origins_patterns' => [
         '#^https://[\w-]+\.chiefcoder\.net$#',
+        '#^http://localhost:\d+$#',
     ],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],

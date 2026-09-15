@@ -15,13 +15,13 @@ class ResolveStudentCurriculumAction
      */
     public function forStudent(Student $student): Collection
     {
-        $student->loadMissing(['academicLevel', 'academicYear', 'specializations']);
+        $student->loadMissing(['academicLevel', 'academicYear', 'specializations', 'currentSemester']);
 
         if (! $student->academic_year_id) {
             return collect();
         }
 
-        $assignments = $this->generalAssignmentsForYear($student->academic_year_id);
+        $assignments = $this->generalAssignmentsForYear($student->academic_year_id, $student->current_semester_id);
 
         if ($student->academicLevel?->curriculum_type === CurriculumType::Specialized) {
             $specializationIds = $student->specializations()
@@ -39,6 +39,7 @@ class ResolveStudentCurriculumAction
                     ->whereIn('specialization_id', $specializationIds)
                     ->whereHas('semester', fn ($q) => $q
                         ->where('academic_year_id', $student->academic_year_id)
+                        ->when($student->current_semester_id, fn ($query) => $query->where('id', $student->current_semester_id))
                         ->where('is_active', true))
                     ->orderBy('sort_order')
                     ->get();
@@ -53,7 +54,7 @@ class ResolveStudentCurriculumAction
     /**
      * @return Collection<int, CurriculumAssignment>
      */
-    private function generalAssignmentsForYear(int $academicYearId): Collection
+    private function generalAssignmentsForYear(int $academicYearId, ?int $semesterId = null): Collection
     {
         return CurriculumAssignment::query()
             ->with([
@@ -65,6 +66,7 @@ class ResolveStudentCurriculumAction
             ->where('is_active', true)
             ->whereHas('semester', fn ($q) => $q
                 ->where('academic_year_id', $academicYearId)
+                ->when($semesterId, fn ($query) => $query->where('id', $semesterId))
                 ->where('is_active', true))
             ->orderBy('sort_order')
             ->get();

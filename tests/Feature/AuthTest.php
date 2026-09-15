@@ -4,12 +4,20 @@ namespace Tests\Feature;
 
 use App\Models\Student;
 use App\Models\User;
+use Database\Seeders\AcademicStructureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(AcademicStructureSeeder::class);
+    }
 
     public function test_student_can_register(): void
     {
@@ -23,9 +31,39 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertCreated()
-            ->assertJsonStructure(['token', 'user' => ['id', 'email', 'role']]);
+            ->assertJsonStructure(['token', 'user' => ['id', 'email', 'role', 'student']])
+            ->assertJsonPath('user.student.status', 'active')
+            ->assertJsonPath('user.student.academic_level.slug', 'preparatory-level')
+            ->assertJsonPath('user.student.academic_year.slug', 'first-year');
 
         $this->assertDatabaseHas('users', ['email' => 'student@example.com', 'role' => 'student']);
+        $this->assertDatabaseHas('students', [
+            'email' => 'student@example.com',
+            'status' => Student::STATUS_ACTIVE,
+        ]);
+
+        $student = Student::query()->where('email', 'student@example.com')->firstOrFail();
+        $this->assertNotNull($student->academic_level_id);
+        $this->assertNotNull($student->academic_year_id);
+        $this->assertNotNull($student->current_semester_id);
+    }
+
+    public function test_newly_registered_student_can_access_dashboard(): void
+    {
+        $response = $this->postJson('/api/v1/auth/register', [
+            'first_name' => 'أحمد',
+            'last_name' => 'محمد',
+            'email' => 'new-student@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'accept_terms' => true,
+        ])->assertCreated();
+
+        $token = $response->json('token');
+
+        $this->withToken($token)
+            ->getJson('/api/v1/student/dashboard')
+            ->assertOk();
     }
 
     public function test_registration_rejects_duplicate_email(): void
@@ -90,6 +128,14 @@ class AuthTest extends TestCase
         $this->actingAsStudent();
 
         $this->postJson('/api/v1/auth/logout')->assertOk();
+    }
+
+    public function test_pending_student_cannot_access_portal(): void
+    {
+        $student = $this->createPendingStudent();
+        $this->actingAsStudent($student);
+
+        $this->getJson('/api/v1/student/dashboard')->assertForbidden();
     }
 
     public function test_suspended_student_cannot_access_portal(): void

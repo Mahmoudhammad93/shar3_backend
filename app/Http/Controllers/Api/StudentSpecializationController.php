@@ -72,8 +72,25 @@ class StudentSpecializationController extends Controller
     public function curriculum(Request $request): JsonResponse
     {
         $student = $this->student($request);
+        $student->load(['academicLevel', 'academicYear', 'currentSemester']);
 
         return response()->json([
+            'academic_level' => $student->academicLevel ? [
+                'id' => $student->academicLevel->id,
+                'name_ar' => $student->academicLevel->name_ar,
+                'slug' => $student->academicLevel->slug,
+            ] : null,
+            'academic_year' => $student->academicYear ? [
+                'id' => $student->academicYear->id,
+                'name_ar' => $student->academicYear->name_ar,
+                'slug' => $student->academicYear->slug,
+                'year_number' => $student->academicYear->year_number,
+            ] : null,
+            'current_semester' => $student->currentSemester ? [
+                'id' => $student->currentSemester->id,
+                'name_ar' => $student->currentSemester->name_ar,
+                'semester_number' => $student->currentSemester->semester_number,
+            ] : null,
             'subjects' => $this->curriculum->forStudent($student)->values(),
         ]);
     }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Concerns;
 
-use App\Models\Enrollment;
+use App\Actions\EnsureStudentCanAccessCourseAction;
 use App\Models\Lesson;
 use App\Models\Student;
 use Illuminate\Http\Request;
@@ -26,13 +26,9 @@ trait ResolvesAuthenticatedStudent
 
     protected function ensureLessonAccessible(Student $student, Lesson $lesson): void
     {
-        $enrolled = Enrollment::query()
-            ->where('student_id', $student->id)
-            ->where('course_id', $lesson->course_id)
-            ->whereIn('status', [Enrollment::STATUS_APPROVED, Enrollment::STATUS_COMPLETED])
-            ->exists();
+        $canAccess = app(EnsureStudentCanAccessCourseAction::class)->execute($student, $lesson->course_id);
 
-        abort_unless($enrolled, 403);
+        abort_unless($canAccess, 403);
 
         $previousIncomplete = Lesson::query()
             ->where('course_id', $lesson->course_id)

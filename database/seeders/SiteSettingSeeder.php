@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\SiteSetting;
+use App\Support\WebsiteNavPages;
 use Illuminate\Database\Seeder;
 
 class SiteSettingSeeder extends Seeder
@@ -57,10 +58,19 @@ HTML,
                 'twitter' => 'https://x.com/duaataltawheed',
                 'instagram' => null,
                 'youtube' => 'https://www.youtube.com/@duaataltawheed',
-                'logo' => null,
+                'telegram' => null,
+                'logo' => 'settings/logo.png',
                 'favicon' => null,
                 'footer_text_ar' => '© معهد علم شرعي — جميع الحقوق محفوظة',
                 'footer_text_en' => null,
+                'homepage_featured_courses_enabled' => false,
+                'homepage_featured_courses_visible_from' => null,
+                'homepage_featured_courses_visible_until' => null,
+                'website_primary_color' => '#002B5B',
+                'website_accent_color' => '#C5A04D',
+                'website_background_color' => '#f7f9fc',
+                'website_color_palette' => 'institute_navy_gold',
+                'website_nav_pages' => WebsiteNavPages::normalizeForStorage(WebsiteNavPages::defaults()),
                 'dashboard_institute_name_ar' => 'معهد إعداد دعاة التوحيد والسنة',
                 'dashboard_institute_name_en' => 'Institute for Training Preachers of Tawhid and the Sunnah',
                 'academic_year_ar' => 'العام الدراسي ١٤٤٦ هـ',

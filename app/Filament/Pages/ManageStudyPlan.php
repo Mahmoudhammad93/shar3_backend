@@ -2,12 +2,10 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Resources\Subjects\SubjectResource;
-use App\Filament\Resources\Subjects\Tables\SubjectsTable;
+use App\Filament\Resources\Subjects\Tables\StudyPlanAssignmentsTable;
 use App\Models\CurriculumAssignment;
 use App\Models\SiteSetting;
 use Filament\Actions\Action;
-use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -58,9 +56,6 @@ class ManageStudyPlan extends Page implements HasTable
                 ->icon(Heroicon::OutlinedEye)
                 ->url(rtrim(config('app.frontend_url'), '/').'/study-plan/')
                 ->openUrlInNewTab(),
-            CreateAction::make()
-                ->label('إضافة مادة')
-                ->url(fn (): string => SubjectResource::getUrl('create')),
         ];
     }
 
@@ -90,18 +85,12 @@ class ManageStudyPlan extends Page implements HasTable
 
     public function table(Table $table): Table
     {
-        return SubjectsTable::configure($table)
+        return StudyPlanAssignmentsTable::configure($table)
             ->query(
                 CurriculumAssignment::query()
                     ->with(['semester.year.level', 'specialization', 'subject.course'])
             )
-            ->heading('مواد الخطة الدراسية')
-            ->description('عدّل الحفظ والمتون الأساسية والكتب التكميلية لكل مادة')
-            ->headerActions([
-                CreateAction::make()
-                    ->label('إضافة مادة')
-                    ->url(fn (): string => SubjectResource::getUrl('create')),
-            ]);
+            ->description('عدّل الحفظ واسم الكتاب والكتب التكميلية لكل مادة');
     }
 
     public function content(Schema $schema): Schema

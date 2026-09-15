@@ -8,7 +8,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class CourseForm
 {
@@ -32,10 +34,20 @@ class CourseForm
                     ->searchable()
                     ->preload(),
                 TextInput::make('title_ar')
-                    ->required(),
-                TextInput::make('title_en'),
+                    ->label('العنوان (عربي)')
+                    ->required()
+                    ->live(debounce: 400)
+                    ->afterStateUpdated(fn (Set $set, ?string $state): mixed => $set('slug', Str::slug($state ?? ''))),
+                TextInput::make('title_en')
+                    ->label('العنوان (English)'),
                 TextInput::make('slug')
-                    ->required(),
+                    ->label('الرابط (Slug)')
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255)
+                    ->alphaDash()
+                    ->readOnly()
+                    ->helperText('يُنشأ تلقائياً من عنوان الدورة ويجب أن يكون فريداً'),
                 Textarea::make('description_ar')
                     ->columnSpanFull(),
                 Textarea::make('description_en')

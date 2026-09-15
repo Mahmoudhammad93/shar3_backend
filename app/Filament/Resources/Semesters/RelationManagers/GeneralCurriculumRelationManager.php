@@ -9,6 +9,8 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\Str;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -43,8 +45,15 @@ class GeneralCurriculumRelationManager extends RelationManager
                 ->searchable()
                 ->preload()
                 ->createOptionForm([
-                    TextInput::make('name_ar')->label('اسم المادة (عربي)')->required(),
-                    TextInput::make('slug')->label('الرابط')->required(),
+                    TextInput::make('name_ar')
+                        ->label('اسم المادة (عربي)')
+                        ->required()
+                        ->live(debounce: 400)
+                        ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
+                    TextInput::make('slug')
+                        ->label('الرابط')
+                        ->helperText('يُنشأ من الاسم العربي؛ يُضاف رقم تلقائياً إذا كان الرابط مستخدماً')
+                        ->maxLength(255),
                     Toggle::make('is_active')->label('نشط')->default(true),
                 ])
                 ->createOptionUsing(function (array $data): int {

@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    'bunny_stream' => [
+        'library_id' => env('BUNNY_STREAM_LIBRARY_ID'),
+        'api_key' => env('BUNNY_STREAM_API_KEY'),
+        'cdn_hostname' => env('BUNNY_STREAM_CDN_HOSTNAME'),
+        'webhook_signing_key' => env('BUNNY_STREAM_WEBHOOK_SIGNING_KEY'),
+    ],
+
+    'google_drive' => [
+        'client_id' => env('GOOGLE_DRIVE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_DRIVE_CLIENT_SECRET'),
+        'refresh_token' => env('GOOGLE_DRIVE_REFRESH_TOKEN'),
+    ],
+
 ];

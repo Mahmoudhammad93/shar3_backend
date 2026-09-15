@@ -3,6 +3,8 @@
 namespace App\Filament\Pages;
 
 use App\Models\SiteSetting;
+use App\Support\DashboardColorPalettes;
+use App\Support\HexColor;
 use Filament\Actions\Action;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
@@ -16,6 +18,9 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -38,6 +43,26 @@ class ManageDashboardSettings extends Page
     public function mount(): void
     {
         $this->form->fill(SiteSetting::current()->toArray());
+    }
+
+    public function applyStudentColorPalette(string $paletteId): void
+    {
+        if ($paletteId === 'custom') {
+            $this->data['dashboard_color_palette'] = 'custom';
+
+            return;
+        }
+
+        $palette = DashboardColorPalettes::student($paletteId);
+
+        if (! $palette) {
+            return;
+        }
+
+        $this->data = DashboardColorPalettes::applyStudentPalette(
+            array_merge($this->data ?? [], ['dashboard_color_palette' => $paletteId]),
+            $paletteId,
+        );
     }
 
     public function defaultForm(Schema $schema): Schema
@@ -73,18 +98,35 @@ class ManageDashboardSettings extends Page
                         ->helperText('يُستخدم عند إيقاف خيار شعار الموقع الرئيسي، أو كبديل عند عدم وجود شعار'),
                 ])->columns(2),
                 Section::make('الألوان والمظهر')->schema([
+                    View::make('filament.forms.color-palette-picker')
+                        ->viewData(fn (Get $get): array => [
+                            'palettes' => DashboardColorPalettes::studentList(),
+                            'selected' => $get('dashboard_color_palette') ?? 'custom',
+                            'applyMethod' => 'applyStudentColorPalette',
+                            'heading' => 'لوحات ألوان لوحة الطالب',
+                            'description' => '١٠ لوحات عصرية — انقر على أي بطاقة لمعاينة الألوان وتطبيقها فوراً على اللون الأساسي، الشريط الجانبي، التمييز، والخلفية.',
+                        ])
+                        ->columnSpanFull(),
                     ColorPicker::make('dashboard_primary_color')
                         ->label('اللون الأساسي')
-                        ->default('#004d40'),
+                        ->default('#004d40')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn (Set $set) => $set('dashboard_color_palette', 'custom')),
                     ColorPicker::make('dashboard_sidebar_color')
                         ->label('لون الشريط الجانبي')
-                        ->default('#0a3d34'),
+                        ->default('#0a3d34')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn (Set $set) => $set('dashboard_color_palette', 'custom')),
                     ColorPicker::make('dashboard_accent_color')
                         ->label('لون التمييز (ذهبي)')
-                        ->default('#c9a227'),
+                        ->default('#c9a227')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn (Set $set) => $set('dashboard_color_palette', 'custom')),
                     ColorPicker::make('dashboard_background_color')
                         ->label('لون خلفية المحتوى')
-                        ->default('#f4f7f6'),
+                        ->default('#f4f7f6')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn (Set $set) => $set('dashboard_color_palette', 'custom')),
                     Select::make('dashboard_style')
                         ->label('نمط لوحة التحكم')
                         ->options([
@@ -161,6 +203,22 @@ class ManageDashboardSettings extends Page
     public function save(): void
     {
         $data = $this->form->getState();
+
+        foreach ([
+            'dashboard_primary_color' => '#004d40',
+            'dashboard_sidebar_color' => '#0a3d34',
+            'dashboard_accent_color' => '#c9a227',
+            'dashboard_background_color' => '#f4f7f6',
+        ] as $field => $fallback) {
+            if (array_key_exists($field, $data)) {
+                $data[$field] = HexColor::normalize($data[$field], $fallback);
+            }
+        }
+
+        if (empty($data['dashboard_color_palette'])) {
+            $data['dashboard_color_palette'] = 'custom';
+        }
+
         SiteSetting::current()->update($data);
 
         Notification::make()

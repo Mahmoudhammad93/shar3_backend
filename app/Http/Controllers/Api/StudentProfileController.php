@@ -17,6 +17,7 @@ class StudentProfileController extends Controller
     public function show(Request $request): JsonResponse
     {
         $student = $this->student($request);
+        $student->load(['academicLevel', 'academicYear', 'currentSemester']);
         $user = $request->user();
 
         return response()->json([
@@ -47,7 +48,7 @@ class StudentProfileController extends Controller
 
         return response()->json([
             'message' => 'تم تحديث الملف الشخصي',
-            'student' => $this->studentProfilePayload($student->fresh()),
+            'student' => $this->studentProfilePayload($student->fresh(['academicLevel', 'academicYear', 'currentSemester'])),
         ]);
     }
 
@@ -80,6 +81,23 @@ class StudentProfileController extends Controller
             'terms_accepted_at' => $student->terms_accepted_at?->format('Y-m-d H:i'),
             'status' => $student->status,
             'status_label' => $student->statusLabel(),
+            'rejection_reason' => $student->status === Student::STATUS_REJECTED
+                ? $student->rejection_reason
+                : null,
+            'academic_level' => $student->academicLevel ? [
+                'id' => $student->academicLevel->id,
+                'name_ar' => $student->academicLevel->name_ar,
+            ] : null,
+            'academic_year' => $student->academicYear ? [
+                'id' => $student->academicYear->id,
+                'name_ar' => $student->academicYear->name_ar,
+                'year_number' => $student->academicYear->year_number,
+            ] : null,
+            'current_semester' => $student->currentSemester ? [
+                'id' => $student->currentSemester->id,
+                'name_ar' => $student->currentSemester->name_ar,
+                'semester_number' => $student->currentSemester->semester_number,
+            ] : null,
             'photo' => MediaUrl::resolve($student->photo),
         ];
     }

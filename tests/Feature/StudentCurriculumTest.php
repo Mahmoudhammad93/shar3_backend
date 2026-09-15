@@ -19,7 +19,7 @@ class StudentCurriculumTest extends TestCase
 
         $level = AcademicLevel::query()->where('slug', 'specialized-level')->firstOrFail();
         $year = AcademicYear::query()->where('slug', 'fourth-year')->firstOrFail();
-        $spec = Specialization::query()->where('slug', 'fiqh-tafsir')->firstOrFail();
+        $spec = Specialization::query()->where('slug', 'fiqh-usul')->firstOrFail();
 
         $student = $this->createStudent([
             'academic_level_id' => $level->id,
@@ -39,8 +39,8 @@ class StudentCurriculumTest extends TestCase
 
         $slugs = collect($response->json('subjects'))->pluck('slug');
 
-        $this->assertTrue($slugs->contains('fiqh-specialized'));
-        $this->assertTrue($slugs->contains('algorithms'));
+        $this->assertTrue($slugs->contains('fq-y4s1-usul'));
+        $this->assertTrue($slugs->contains('research-methods'));
     }
 
     public function test_student_with_multiple_specializations_gets_merged_subjects_without_duplicates(): void
@@ -56,7 +56,7 @@ class StudentCurriculumTest extends TestCase
         ]);
 
         $specs = Specialization::query()
-            ->whereIn('slug', ['fiqh-tafsir', 'hadith'])
+            ->whereIn('slug', ['fiqh-usul', 'hadith-sciences'])
             ->get();
 
         foreach ($specs as $spec) {
@@ -72,10 +72,10 @@ class StudentCurriculumTest extends TestCase
 
         $subjects = collect($response->json('subjects'));
 
-        $algorithmEntries = $subjects->where('slug', 'algorithms');
+        $researchEntries = $subjects->where('slug', 'research-methods');
 
-        $this->assertCount(1, $algorithmEntries);
-        $this->assertCount(2, $algorithmEntries->first()['specializations']);
+        $this->assertCount(1, $researchEntries);
+        $this->assertCount(2, $researchEntries->first()['specializations']);
         $this->assertGreaterThanOrEqual(3, $subjects->count());
     }
 
@@ -97,7 +97,7 @@ class StudentCurriculumTest extends TestCase
 
         $slugs = collect($response->json('subjects'))->pluck('slug');
 
-        $this->assertTrue($slugs->contains('fiqh-1'));
-        $this->assertFalse($slugs->contains('fiqh-specialized'));
+        $this->assertTrue($slugs->contains('y1s1-fiqh'));
+        $this->assertFalse($slugs->contains('fq-y4s1-usul'));
     }
 }

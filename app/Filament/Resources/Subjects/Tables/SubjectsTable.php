@@ -20,7 +20,7 @@ class SubjectsTable
                 TextColumn::make('semester.name_ar')->label('الفصل'),
                 TextColumn::make('subject.name_ar')->label('المادة')->searchable()->sortable(),
                 TextColumn::make('subject.memorization_ar')->label('الحفظ')->limit(40)->placeholder('—')->toggleable(),
-                TextColumn::make('subject.primary_text_ar')->label('أساسي')->limit(40)->placeholder('—')->toggleable(),
+                TextColumn::make('subject.primary_text_ar')->label('اسم الكتاب')->limit(40)->placeholder('—')->toggleable(),
                 TextColumn::make('subject.supplementary_text_ar')->label('تكميلي')->limit(40)->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('specialization.name_ar')->label('التخصص')->placeholder('—'),
                 TextColumn::make('subject.course.title_ar')->label('الدورة المرتبطة')->placeholder('—'),

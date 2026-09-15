@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\AcademicLevel;
 use App\Models\AcademicYear;
 use App\Models\Specialization;
-use App\Models\StudentSpecialization;
 use App\Models\User;
 use Database\Seeders\AcademicStructureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,21 +29,25 @@ class StudentSpecializationTest extends TestCase
 
         $this->actingAsStudent($student);
 
-        $specs = Specialization::query()->where('academic_level_id', $level->id)->get();
+        $specs = Specialization::query()
+            ->where('academic_level_id', $level->id)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
 
         return [$student, $level, $year, $specs];
     }
 
     public function test_student_can_select_multiple_specializations(): void
     {
-        [, , , $specs] = $this->specializedStudentSetup();
+        [$student, , , $specs] = $this->specializedStudentSetup();
 
         $this->postJson('/api/v1/student/specializations', [
             'specialization_ids' => $specs->take(2)->pluck('id')->all(),
         ])->assertOk()
             ->assertJsonCount(2, 'specializations');
 
-        $this->assertEquals(2, StudentSpecialization::query()->count());
+        $this->assertEquals(2, $student->fresh()->specializations()->count());
     }
 
     public function test_student_can_sync_specializations(): void

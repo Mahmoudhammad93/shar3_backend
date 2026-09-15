@@ -21,26 +21,33 @@ use App\Models\SiteSetting;
 use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\Testimonial;
+use App\Support\HomepageFeaturedCourses;
 use Illuminate\Http\JsonResponse;
 
 class HomeController extends Controller
 {
     public function index(): JsonResponse
     {
+        $settings = SiteSetting::current();
+        $showFeaturedCourses = HomepageFeaturedCourses::shouldShow($settings);
+
         return response()->json([
-            'settings' => new SettingResource(SiteSetting::current()),
+            'settings' => new SettingResource($settings),
+            'homepage_featured_courses_visible' => $showFeaturedCourses,
             'hero_slides' => HeroSlideResource::collection(
                 HeroSlide::query()->where('is_active', true)->orderBy('sort_order')->get()
             ),
-            'featured_courses' => CourseResource::collection(
-                Course::query()
-                    ->with(['category', 'teacher'])
-                    ->where('is_published', true)
-                    ->where('is_featured', true)
-                    ->orderBy('sort_order')
-                    ->limit(6)
-                    ->get()
-            ),
+            'featured_courses' => $showFeaturedCourses
+                ? CourseResource::collection(
+                    Course::query()
+                        ->with(['category', 'teacher'])
+                        ->where('is_published', true)
+                        ->where('is_featured', true)
+                        ->orderBy('sort_order')
+                        ->limit(6)
+                        ->get()
+                )
+                : [],
             'programs' => ProgramResource::collection(
                 Program::query()->where('is_active', true)->orderBy('sort_order')->limit(4)->get()
             ),
@@ -61,7 +68,7 @@ class HomeController extends Controller
                 Faq::query()->where('is_active', true)->orderBy('sort_order')->limit(6)->get()
             ),
             'stats' => [
-                'students' => Student::query()->count(),
+                'students' => Student::query()->where('status', Student::STATUS_ACTIVE)->count(),
                 'courses' => Course::query()->where('is_published', true)->count(),
                 'teachers' => Teacher::query()->where('is_active', true)->count(),
                 'programs' => Program::query()->where('is_active', true)->count(),
