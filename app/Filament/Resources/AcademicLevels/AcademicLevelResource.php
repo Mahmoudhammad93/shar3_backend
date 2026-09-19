@@ -22,7 +22,7 @@ class AcademicLevelResource extends Resource
 
     protected static ?string $navigationLabel = 'المستويات';
 
-    protected static ?string $modelLabel = 'مستوى';
+    protected static ?string $modelLabel = 'المستوى الأكاديمي';
 
     protected static ?string $pluralModelLabel = 'المستويات';
 

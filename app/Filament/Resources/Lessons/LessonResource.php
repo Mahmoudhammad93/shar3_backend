@@ -27,9 +27,9 @@ class LessonResource extends Resource
 
     protected static ?string $pluralModelLabel = 'الدروس';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'الإدارة الأكاديمية';
+    protected static string|\UnitEnum|null $navigationGroup = 'المحتوى التعليمي';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

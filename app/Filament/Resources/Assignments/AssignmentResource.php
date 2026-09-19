@@ -26,9 +26,9 @@ class AssignmentResource extends Resource
 
     protected static ?string $pluralModelLabel = 'الواجبات';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'الإدارة الأكاديمية';
+    protected static string|\UnitEnum|null $navigationGroup = 'المحتوى التعليمي';
 
-    protected static ?int $navigationSort = 8;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

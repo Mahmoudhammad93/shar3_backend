@@ -34,14 +34,14 @@ class CourseForm
                     ->searchable()
                     ->preload(),
                 TextInput::make('title_ar')
-                    ->label('العنوان (عربي)')
+                    ->label('العنوان بالعربية')
                     ->required()
                     ->live(debounce: 400)
                     ->afterStateUpdated(fn (Set $set, ?string $state): mixed => $set('slug', Str::slug($state ?? ''))),
                 TextInput::make('title_en')
-                    ->label('العنوان (English)'),
+                    ->label('العنوان بالإنجليزية'),
                 TextInput::make('slug')
-                    ->label('الرابط (Slug)')
+                    ->label('الرابط المختصر')
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255)
@@ -49,35 +49,46 @@ class CourseForm
                     ->readOnly()
                     ->helperText('يُنشأ تلقائياً من عنوان الدورة ويجب أن يكون فريداً'),
                 Textarea::make('description_ar')
+                    ->label('الوصف بالعربية')
                     ->columnSpanFull(),
                 Textarea::make('description_en')
+                    ->label('الوصف بالإنجليزية')
                     ->columnSpanFull(),
                 FileUpload::make('image')
-                    ->label('صورة الدورة')
+                    ->label('الصورة')
                     ->image()
                     ->directory('courses')
                     ->imageEditor()
                     ->helperText('تظهر في بطاقات الدورات ولوحة الطالب'),
                 TextInput::make('duration_hours')
+                    ->label('المدة بالساعات')
                     ->numeric(),
-                TextInput::make('level'),
+                TextInput::make('level')
+                    ->label('المستوى'),
                 TextInput::make('price')
+                    ->label('السعر')
                     ->required()
                     ->numeric()
                     ->default(0)
                     ->prefix('$'),
                 Toggle::make('is_free')
+                    ->label('مجاني')
                     ->required(),
                 Toggle::make('is_featured')
+                    ->label('مميز')
                     ->required(),
                 Toggle::make('is_published')
+                    ->label('منشور')
                     ->required(),
                 TextInput::make('sort_order')
+                    ->label('الترتيب')
                     ->required()
                     ->numeric()
                     ->default(0),
-                DatePicker::make('start_date'),
-                DatePicker::make('end_date'),
+                DatePicker::make('start_date')
+                    ->label('تاريخ البدء'),
+                DatePicker::make('end_date')
+                    ->label('تاريخ الانتهاء'),
             ]);
     }
 }

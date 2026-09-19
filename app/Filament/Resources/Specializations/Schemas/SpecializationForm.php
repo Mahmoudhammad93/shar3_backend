@@ -29,10 +29,10 @@ class SpecializationForm
                     ->searchable()
                     ->preload()
                     ->helperText('يُسمح فقط بالمستوى المتخصص'),
-                TextInput::make('name_ar')->label('التخصص (عربي)')->required(),
-                TextInput::make('name_en')->label('التخصص (English)'),
-                TextInput::make('slug')->label('الرابط')->required(),
-                Textarea::make('description_ar')->label('الوصف')->columnSpanFull(),
+                TextInput::make('name_ar')->label('التخصص بالعربية')->required(),
+                TextInput::make('name_en')->label('التخصص بالإنجليزية'),
+                TextInput::make('slug')->label('الرابط المختصر')->required(),
+                Textarea::make('description_ar')->label('الوصف بالعربية')->columnSpanFull(),
                 TextInput::make('sort_order')->label('الترتيب')->required()->numeric()->default(0),
                 Toggle::make('is_active')->label('نشط')->default(true),
             ]);

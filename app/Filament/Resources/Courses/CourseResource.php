@@ -27,9 +27,12 @@ class CourseResource extends Resource
 
     protected static ?string $modelLabel = 'دورة';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'الإدارة الأكاديمية';
+    protected static ?string $pluralModelLabel = 'الدورات';
 
-    protected static ?int $navigationSort = 3;
+    // Neutral label: no course_type yet — do not imply all courses are "general".
+    protected static string|\UnitEnum|null $navigationGroup = 'الدورات';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

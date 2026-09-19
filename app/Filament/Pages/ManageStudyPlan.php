@@ -26,13 +26,13 @@ class ManageStudyPlan extends Page implements HasTable
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static ?string $navigationLabel = 'الخطة الدراسية';
+    protected static ?string $navigationLabel = 'الخطة الدراسية / المقررات الدراسية';
 
-    protected static ?string $title = 'إدارة الخطة الدراسية';
+    protected static ?string $title = 'إدارة الخطة الدراسية والمقررات';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'المحتوى';
+    protected static string|\UnitEnum|null $navigationGroup = 'الهيكل الأكاديمي';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $slug = 'study-plan';
 

@@ -18,7 +18,7 @@ class SubjectsTable
                 TextColumn::make('semester.year.level.name_ar')->label('المستوى'),
                 TextColumn::make('semester.year.name_ar')->label('السنة'),
                 TextColumn::make('semester.name_ar')->label('الفصل'),
-                TextColumn::make('subject.name_ar')->label('المادة')->searchable()->sortable(),
+                TextColumn::make('subject.name_ar')->label('المقرر الدراسي')->searchable()->sortable(),
                 TextColumn::make('subject.memorization_ar')->label('الحفظ')->limit(40)->placeholder('—')->toggleable(),
                 TextColumn::make('subject.primary_text_ar')->label('اسم الكتاب')->limit(40)->placeholder('—')->toggleable(),
                 TextColumn::make('subject.supplementary_text_ar')->label('تكميلي')->limit(40)->placeholder('—')->toggleable(isToggledHiddenByDefault: true),

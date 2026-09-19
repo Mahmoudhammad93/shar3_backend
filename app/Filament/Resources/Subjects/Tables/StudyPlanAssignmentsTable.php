@@ -22,7 +22,7 @@ class StudyPlanAssignmentsTable
                 TextColumn::make('semester.year.level.name_ar')->label('المستوى'),
                 TextColumn::make('semester.year.name_ar')->label('السنة'),
                 TextColumn::make('semester.name_ar')->label('الفصل'),
-                TextColumn::make('subject.name_ar')->label('المادة')->searchable(),
+                TextColumn::make('subject.name_ar')->label('المقرر الدراسي')->searchable(),
                 TextColumn::make('subject.memorization_ar')->label('الحفظ')->limit(40)->placeholder('—'),
                 TextColumn::make('subject.primary_text_ar')->label('اسم الكتاب')->limit(40)->placeholder('—'),
                 TextColumn::make('subject.supplementary_text_ar')->label('تكميلي')->limit(40)->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
@@ -43,33 +43,33 @@ class StudyPlanAssignmentsTable
             ->recordActions([
                 EditAction::make()
                     ->label('تعديل')
-                    ->modalHeading('تعديل مادة الخطة الدراسية')
+                    ->modalHeading('تعديل مقرر الخطة الدراسية')
                     ->fillForm(fn (CurriculumAssignment $record): array => StudyPlanAssignmentForm::fillEditForm($record))
                     ->form(fn (CurriculumAssignment $record): array => StudyPlanAssignmentForm::editComponents($record))
                     ->action(function (CurriculumAssignment $record, array $data): void {
                         StudyPlanAssignmentForm::saveEdit($record, $data);
 
                         Notification::make()
-                            ->title('تم حفظ المادة')
+                            ->title('تم حفظ المقرر')
                             ->success()
                             ->send();
                     }),
                 DeleteAction::make()
                     ->label('حذف')
-                    ->modalHeading('حذف المادة من الخطة')
-                    ->modalDescription('سيتم حذف ربط المادة بالخطة فقط، وليس تعريف المادة نفسها.')
-                    ->successNotificationTitle('تم حذف المادة من الخطة'),
+                    ->modalHeading('حذف المقرر من الخطة')
+                    ->modalDescription('سيتم حذف ربط المقرر بالخطة فقط، وليس تعريف المقرر نفسه.')
+                    ->successNotificationTitle('تم حذف المقرر من الخطة'),
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('إضافة مادة')
-                    ->modalHeading('إضافة مادة للخطة الدراسية')
+                    ->label('إضافة مقرر دراسي')
+                    ->modalHeading('إضافة مقرر للخطة الدراسية')
                     ->form(StudyPlanAssignmentForm::createComponents())
                     ->action(function (array $data): void {
                         StudyPlanAssignmentForm::createAssignment($data);
 
                         Notification::make()
-                            ->title('تمت إضافة المادة للخطة')
+                            ->title('تمت إضافة المقرر للخطة')
                             ->success()
                             ->send();
                     }),

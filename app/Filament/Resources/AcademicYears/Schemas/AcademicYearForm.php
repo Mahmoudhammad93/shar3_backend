@@ -15,16 +15,16 @@ class AcademicYearForm
         return $schema
             ->components([
                 Select::make('academic_level_id')
-                    ->label('المستوى')
+                    ->label('المستوى الأكاديمي')
                     ->relationship('level', 'name_ar')
                     ->required()
                     ->searchable()
                     ->preload(),
-                TextInput::make('name_ar')->label('الاسم (عربي)')->required(),
-                TextInput::make('name_en')->label('الاسم (English)'),
-                TextInput::make('slug')->label('الرابط')->required(),
+                TextInput::make('name_ar')->label('الاسم بالعربية')->required(),
+                TextInput::make('name_en')->label('الاسم بالإنجليزية'),
+                TextInput::make('slug')->label('الرابط المختصر')->required(),
                 TextInput::make('year_number')->label('رقم السنة')->required()->numeric()->minValue(0),
-                Textarea::make('description_ar')->label('الوصف')->columnSpanFull(),
+                Textarea::make('description_ar')->label('الوصف بالعربية')->columnSpanFull(),
                 TextInput::make('sort_order')->label('الترتيب')->required()->numeric()->default(0),
                 Toggle::make('is_active')->label('نشط')->default(true),
             ]);

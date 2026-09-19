@@ -20,16 +20,17 @@ class SubjectResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
-    protected static ?string $navigationLabel = 'مواد الخطة (متقدم)';
+    protected static ?string $navigationLabel = 'المقررات الدراسية';
 
-    protected static ?string $modelLabel = 'مادة';
+    protected static ?string $modelLabel = 'مقرر دراسي';
 
-    protected static ?string $pluralModelLabel = 'المواد';
+    protected static ?string $pluralModelLabel = 'المقررات الدراسية';
 
     protected static string|\UnitEnum|null $navigationGroup = 'الهيكل الأكاديمي';
 
     protected static ?int $navigationSort = 6;
 
+    // Study plan page is the primary curriculum UI; keep this resource as advanced edit.
     protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Schema $schema): Schema

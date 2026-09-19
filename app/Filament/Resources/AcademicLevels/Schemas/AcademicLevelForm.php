@@ -15,9 +15,9 @@ class AcademicLevelForm
     {
         return $schema
             ->components([
-                TextInput::make('name_ar')->label('الاسم (عربي)')->required(),
-                TextInput::make('name_en')->label('الاسم (English)'),
-                TextInput::make('slug')->label('الرابط')->required(),
+                TextInput::make('name_ar')->label('الاسم بالعربية')->required(),
+                TextInput::make('name_en')->label('الاسم بالإنجليزية'),
+                TextInput::make('slug')->label('الرابط المختصر')->required(),
                 TextInput::make('number')->label('رقم المستوى')->required()->numeric()->minValue(1),
                 Select::make('curriculum_type')
                     ->label('نوع المنهج')
@@ -27,8 +27,8 @@ class AcademicLevelForm
                     ->required()
                     ->default(CurriculumType::General->value)
                     ->helperText('العام: تمهيدي ومتقدم — المتخصص: يسمح باختيار التخصصات'),
-                Textarea::make('description_ar')->label('الوصف (عربي)')->columnSpanFull(),
-                Textarea::make('description_en')->label('الوصف (English)')->columnSpanFull(),
+                Textarea::make('description_ar')->label('الوصف بالعربية')->columnSpanFull(),
+                Textarea::make('description_en')->label('الوصف بالإنجليزية')->columnSpanFull(),
                 TextInput::make('sort_order')->label('الترتيب')->required()->numeric()->default(0),
                 Toggle::make('is_active')->label('نشط')->default(true),
             ]);

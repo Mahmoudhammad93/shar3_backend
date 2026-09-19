@@ -66,7 +66,10 @@ class AcademicStructureResource extends BaseResource
         }
 
         return $specialization->curriculumAssignments
-            ->groupBy(fn (CurriculumAssignment $a) => $a->semester?->year_id)
+            // Semester belongs to AcademicYear via academic_year_id (not year_id).
+            // Skip malformed rows with missing semester/year so grouping never throws.
+            ->filter(fn (CurriculumAssignment $a) => filled($a->semester?->academic_year_id))
+            ->groupBy(fn (CurriculumAssignment $a) => $a->semester->academic_year_id)
             ->map(function ($assignments, $yearId) {
                 $year = $assignments->first()?->semester?->year;
 

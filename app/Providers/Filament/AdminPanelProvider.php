@@ -51,6 +51,15 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarWidth(AdminPanelSettings::sidebarWidth())
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->navigationGroups([
+                'الهيكل الأكاديمي',
+                'المحتوى التعليمي',
+                'الدورات',
+                'الإدارة الأكاديمية',
+                'المحتوى',
+                'التواصل',
+                'النظام',
+            ])
             ->pages([
                 Dashboard::class,
                 ManageSiteSettings::class,

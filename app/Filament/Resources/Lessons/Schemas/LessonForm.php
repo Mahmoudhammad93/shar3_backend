@@ -41,7 +41,7 @@ class LessonForm
                 ->label('العنوان (عربي)')
                 ->required(),
             TextInput::make('title_en')
-                ->label('العنوان (إنجليزي)'),
+                ->label('العنوان بالإنجليزية'),
             Select::make('media_type')
                 ->label('نوع الوسائط')
                 ->options([
@@ -71,11 +71,11 @@ class LessonForm
             Section::make('صوت (Google Drive)')
                 ->schema([
                     TextInput::make('google_drive_file_id')
-                        ->label('Google Drive File ID')
+                        ->label('معرف الملف في Google Drive')
                         ->required(fn (Get $get): bool => $get('media_type') === LessonMediaType::Audio->value)
                         ->maxLength(255),
                     TextInput::make('google_drive_resource_key')
-                        ->label('Google Drive Resource Key (اختياري)')
+                        ->label('مفتاح المورد في Google Drive (اختياري)')
                         ->maxLength(255)
                         ->helperText('مطلوب لبعض الملفات المشاركة برابط محمي.'),
                 ])

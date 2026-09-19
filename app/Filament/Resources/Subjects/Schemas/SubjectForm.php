@@ -15,10 +15,10 @@ class SubjectForm
     {
         return $schema
             ->components([
-                TextInput::make('name_ar')->label('اسم المادة (عربي)')->required(),
-                TextInput::make('name_en')->label('اسم المادة (English)'),
-                TextInput::make('slug')->label('الرابط')->required()->unique(ignoreRecord: true),
-                Textarea::make('description_ar')->label('الوصف')->columnSpanFull(),
+                TextInput::make('name_ar')->label('اسم المقرر بالعربية')->required(),
+                TextInput::make('name_en')->label('اسم المقرر بالإنجليزية'),
+                TextInput::make('slug')->label('الرابط المختصر')->required()->unique(ignoreRecord: true),
+                Textarea::make('description_ar')->label('الوصف بالعربية')->columnSpanFull(),
                 Select::make('course_id')
                     ->label('ربط بدورة موجودة')
                     ->relationship('course', 'title_ar')

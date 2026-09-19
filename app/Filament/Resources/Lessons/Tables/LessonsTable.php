@@ -25,7 +25,7 @@ class LessonsTable
                     ->label('العنوان')
                     ->searchable(),
                 TextColumn::make('title_en')
-                    ->label('العنوان (EN)')
+                    ->label('العنوان بالإنجليزية')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('video_url')
@@ -48,6 +48,7 @@ class LessonsTable
                     ->label('منشور')
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label('تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

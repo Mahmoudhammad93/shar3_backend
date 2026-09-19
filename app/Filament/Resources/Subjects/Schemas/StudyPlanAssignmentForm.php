@@ -113,7 +113,7 @@ class StudyPlanAssignmentForm
     {
         $components = [
             TextInput::make('name_ar')
-                ->label('اسم المادة (عربي)')
+                ->label('اسم المقرر بالعربية')
                 ->required()
                 ->live(debounce: 400)
                 ->afterStateUpdated(function (Set $set, ?string $state) use ($includeSlug): void {
@@ -122,16 +122,16 @@ class StudyPlanAssignmentForm
                     }
                 }),
             TextInput::make('name_en')
-                ->label('اسم المادة (English)'),
+                ->label('اسم المقرر بالإنجليزية'),
         ];
 
         if ($includeSlug) {
             $components[] = TextInput::make('slug')
-                ->label('الرابط')
+                ->label('الرابط المختصر')
                 ->required()
                 ->maxLength(255)
                 ->alphaDash()
-                ->helperText('يُنشأ تلقائياً من اسم المادة');
+                ->helperText('يُنشأ تلقائياً من اسم المقرر');
         }
 
         $components[] = Select::make('course_id')
@@ -139,11 +139,11 @@ class StudyPlanAssignmentForm
             ->options(fn () => self::availableCourseOptions($ignoreSubjectId))
             ->searchable()
             ->preload()
-            ->helperText('كل دورة يمكن ربطها بمادة واحدة فقط في الخطة الدراسية')
+            ->helperText('كل دورة يمكن ربطها بمقرر واحد فقط في الخطة الدراسية')
             ->rules([
                 fn (): \Closure => function (string $attribute, $value, \Closure $fail) use ($ignoreSubjectId): void {
                     if ($value !== null && $value !== '' && self::courseAlreadyLinked((int) $value, $ignoreSubjectId)) {
-                        $fail('هذه الدورة مرتبطة بمادة أخرى في الخطة الدراسية.');
+                        $fail('هذه الدورة مرتبطة بمقرر آخر في الخطة الدراسية.');
                     }
                 },
             ]);
@@ -177,7 +177,7 @@ class StudyPlanAssignmentForm
                 ->default(0)
                 ->required(),
             Toggle::make('is_required')
-                ->label('مادة إلزامية')
+                ->label('مقرر إلزامي')
                 ->default(true),
             Toggle::make('is_active')
                 ->label('نشط في الخطة')
@@ -241,7 +241,7 @@ class StudyPlanAssignmentForm
         }
 
         throw ValidationException::withMessages([
-            'course_id' => 'هذه الدورة مرتبطة بمادة أخرى في الخطة الدراسية.',
+            'course_id' => 'هذه الدورة مرتبطة بمقرر آخر في الخطة الدراسية.',
         ]);
     }
 

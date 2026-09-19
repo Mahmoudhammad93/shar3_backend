@@ -25,7 +25,7 @@ class CurriculumAssignmentsRelationManager extends RelationManager
 
     protected static ?string $title = 'منهج التخصص';
 
-    protected static ?string $modelLabel = 'مادة';
+    protected static ?string $modelLabel = 'مقرر دراسي';
 
     public function form(Schema $schema): Schema
     {
@@ -51,7 +51,7 @@ class CurriculumAssignmentsRelationManager extends RelationManager
                 ->searchable()
                 ->preload(),
             Select::make('subject_id')
-                ->label('المادة')
+                ->label('المقرر الدراسي')
                 ->options(fn () => Subject::query()
                     ->where('is_active', true)
                     ->orderBy('name_ar')
@@ -68,13 +68,13 @@ class CurriculumAssignmentsRelationManager extends RelationManager
                 ->preload()
                 ->createOptionForm([
                     TextInput::make('name_ar')
-                        ->label('اسم المادة (عربي)')
+                        ->label('اسم المقرر بالعربية')
                         ->required()
                         ->live(debounce: 400)
                         ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
-                    TextInput::make('name_en')->label('اسم المادة (English)'),
+                    TextInput::make('name_en')->label('اسم المقرر بالإنجليزية'),
                     TextInput::make('slug')
-                        ->label('الرابط')
+                        ->label('الرابط المختصر')
                         ->helperText('يُنشأ من الاسم العربي؛ يُضاف رقم تلقائياً إذا كان الرابط مستخدماً')
                         ->maxLength(255),
                     Toggle::make('is_active')->label('نشط')->default(true),
@@ -83,7 +83,7 @@ class CurriculumAssignmentsRelationManager extends RelationManager
                     return Subject::query()->create($data)->getKey();
                 }),
             TextInput::make('sort_order')->label('الترتيب')->numeric()->default(0)->required(),
-            Toggle::make('is_required')->label('مادة إلزامية')->default(true),
+            Toggle::make('is_required')->label('مقرر إلزامي')->default(true),
             Toggle::make('is_active')->label('نشط')->default(true),
         ]);
     }
@@ -94,16 +94,16 @@ class CurriculumAssignmentsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('semester.year.name_ar')->label('السنة'),
                 TextColumn::make('semester.name_ar')->label('الفصل'),
-                TextColumn::make('subject.name_ar')->label('المادة')->searchable(),
+                TextColumn::make('subject.name_ar')->label('المقرر الدراسي')->searchable(),
                 TextColumn::make('sort_order')->label('الترتيب')->sortable(),
-                ToggleColumn::make('is_required')->label('إلزامية'),
+                ToggleColumn::make('is_required')->label('إلزامي'),
                 ToggleColumn::make('is_active')->label('نشط'),
             ])
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
             ->headerActions([
                 CreateAction::make()
-                    ->label('إضافة مادة للمنهج')
+                    ->label('إضافة مقرر للمنهج')
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['specialization_id'] = $this->getOwnerRecord()->getKey();
 

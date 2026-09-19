@@ -24,38 +24,52 @@ class CoursesTable
                     ->label('العنوان')
                     ->searchable(),
                 TextColumn::make('title_en')
-                    ->searchable(),
+                    ->label('العنوان بالإنجليزية')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('slug')
-                    ->searchable(),
-                ImageColumn::make('image'),
+                    ->label('الرابط المختصر')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('duration_hours')
+                    ->label('المدة بالساعات')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('level')
+                    ->label('المستوى')
                     ->searchable(),
                 TextColumn::make('price')
+                    ->label('السعر')
                     ->money()
                     ->sortable(),
                 IconColumn::make('is_free')
+                    ->label('مجاني')
                     ->boolean(),
                 IconColumn::make('is_featured')
+                    ->label('مميز')
                     ->boolean(),
                 IconColumn::make('is_published')
+                    ->label('منشور')
                     ->boolean(),
                 TextColumn::make('sort_order')
+                    ->label('الترتيب')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('start_date')
+                    ->label('تاريخ البدء')
                     ->date()
                     ->sortable(),
                 TextColumn::make('end_date')
+                    ->label('تاريخ الانتهاء')
                     ->date()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('تاريخ التحديث')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
